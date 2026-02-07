@@ -1,0 +1,23 @@
+boot.dir 268 0 0
+startupConfig.cmd 242 0 0
+sudo mkdir boot
+cd boot
+sudo mkfile startupConfig.cmd
+cd ..
+sudo mkdir bin
+sudo mkdir mnt
+sudo mkdir home
+cd home
+sudo mkdir admin
+cd admin
+sudo mkdir documents
+sudo mkdir programs
+sudo lock /root/boot
+sudo lock /root/bin
+sudo lock /root/mnt
+mnt.dir 0 1 0
+home.dir 56 0 0
+admin.dir 39 0 0
+documents.dir 0 0 0
+programs.dir 0 0 0
+bin.dir 0 0 0

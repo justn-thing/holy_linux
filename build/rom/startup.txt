@@ -1,0 +1,15 @@
+sudo mkdir boot
+cd boot
+sudo mkfile startupConfig.cmd
+cd ..
+sudo mkdir bin
+sudo mkdir mnt
+sudo mkdir home
+cd home
+sudo mkdir admin
+cd admin
+sudo mkdir documents
+sudo mkdir programs
+sudo lock /root/boot
+sudo lock /root/bin
+sudo lock /root/mnt
