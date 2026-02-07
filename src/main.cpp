@@ -49,7 +49,8 @@ int main() {
                         loadBootCfg(root.get());
                         cout << stx::green << "Boot sequence completed!\n" << stx::reset;
                         this_thread::sleep_for(chrono::milliseconds(500));
-                        cout << stx::clear << page::fetch << "\n";
+                        stx::clearConsole();
+                        cout << page::fetch << "\n";
                     }
                 }
             } else {
@@ -721,7 +722,7 @@ int main() {
             cout << page::help << "\n";
         }
         else if (cmd == "clear") {
-            cout << stx::clear;
+            stx::clearConsole();
         }
         else if (cmd == "fetch") {
             cout << page::fetch << "\n";

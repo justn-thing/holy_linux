@@ -11,6 +11,8 @@
 #include <random>
 #include <thread>
 #include <chrono>
+#include <string_view>
+#include "Syntax.h"
 #include "Misc.h"
 #include "Errors.h"
 #include "Pages.h"

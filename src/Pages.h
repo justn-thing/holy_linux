@@ -8,50 +8,68 @@ Developed and still in development by me, myself and I.\n";
 
     constexpr std::string_view help =
 "sudo [cmd] [arg]\n\
--> grants administrator permissions\n\
+-> run a command with admin permissions\n\
+\n\
+Navigation\n\
 cd [arg]\n\
--> enters a directory (access: absolute or relative)\n\
+-> change directory (absolute or relative)\n\
 dir / ls [arg]\n\
--> shows contents of a directory (access: self, absolute or relative)\n\
-mkdir [arg]\n\
--> creates a directory (access: relative)\n\
-rmdir [-r]? [arg]\n\
--> removes a directory (access: absolute, relative)\n\
-mkfile [arg.ext]\n\
--> creates a file (access: relative)\n\
-rmfile [arg.ext]\n\
--> creates a file (access: absolute, relative)\n\
-rename [arg.ext] [name]\n\
--> renames a file (access: absolute, relative)\n\
-write / wr [arg.ext]\n\
--> writes inside a file using Holy Vim (access: relative)\n\
-edit [arg.ext]\n\
--> writes inside a file using Holy Vim while preserving previous content (access: relative)\n\
-read [arg.ext]\n\
--> reads out the contents of a file (access: relative)\n\
-execute / exec [arg.ext]\n\
--> executes the contents of a file (access: relative)\n\
-compile / comp [arg.ext]\n\
--> compiles the contents of a file into .exe (access: relative)\n\
-mount / mnt [arg] [name]\n\
--> mounts an external file into /root/mnt\n\
--> requires administrator permissions\n\
+-> list directory contents (self, absolute or relative)\n\
+\n\
+Filesystem\n\
+mkdir [name]\n\
+-> create a directory (relative)\n\
+rmdir [-r] [name]\n\
+-> remove a directory (absolute or relative)\n\
+mkfile [name.ext]\n\
+-> create a file (relative)\n\
+rmfile [name.ext]\n\
+-> remove a file (absolute or relative)\n\
+rename [path] [name]\n\
+-> rename a directory or file (absolute or relative)\n\
+lock [path]\n\
+-> lock a file or directory (sudo only)\n\
+unlock [path]\n\
+-> unlock a file or directory (sudo only)\n\
+\n\
+Editing\n\
+write / wr [name.ext]\n\
+-> write a new file with Holy Vim\n\
+edit [name.ext]\n\
+-> edit an existing file with Holy Vim\n\
+read [name.ext]\n\
+-> print file contents\n\
+\n\
+Execution\n\
+execute / exec [name.ext]\n\
+-> run .cmd, .py, or .exe\n\
+compile / comp [name.cpp]\n\
+-> compile to .exe (requires g++)\n\
+\n\
+Mount\n\
+mount / mnt [path] [name]\n\
+-> mount an external .txt/.cmd/.py/.cpp into /root/mnt (sudo only)\n\
+\n\
+System\n\
 help\n\
--> shows this page\n\
+-> show this page\n\
 clear\n\
--> clears the terminal\n\
+-> clear the terminal\n\
 fetch\n\
--> displays the current release\n\
+-> display the current release\n\
 poweroff\n\
--> shuts down the system and saves files\n";
+-> shutdown and save the filesystem\n";
 
     constexpr std::string_view holyVim =
 "Holy Vim | Release 1.1\n\
 \n\
-Go to line with: ':goto #'\n\
-Insert line with: ':ins #'\n\
-Delete line with: ':del #'\n\
-Save & Exit with: ':save'\n\
-Discard & Exit with: ':discard'\n";
+Type text to add or replace a line.\n\
+\n\
+Commands\n\
+:goto #    jump to line\n\
+:ins #     insert line before #\n\
+:del #     delete line #\n\
+:save      save and exit\n\
+:discard   exit without saving\n";
 
 }
