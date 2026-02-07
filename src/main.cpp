@@ -1,4 +1,4 @@
-#include "Headers.h"
+#include "Headers.hpp"
 
 int main() {
     cout << stx::green << "Booting...\n" << stx::reset;
@@ -503,10 +503,7 @@ int main() {
                 continue;
             }
             vector<string> file = split(arg, '.');
-            if (const size_t fileSize = file.size();
-                fileSize == 1) {
-                file.emplace_back("elf");
-            } else if (file.size() != 2) {
+            if (file.size() != 2) {
                 throwError(err::invalid_arg, stx::yellow);
                 continue;
             }
@@ -529,19 +526,30 @@ int main() {
                 fileout << target->value;
                 fileout.close();
 
-                system("py ram/pythonExecutable.txt");
+                #ifdef _WIN32
+                    system("py ram/pythonExecutable.txt");
+                #else
+                    system("python3 ram/pythonExecutable.txt");
+                #endif
+
 
                 ofstream fileErase("ram/pythonExecutable.txt");
                 fileErase.close();
             } else if (file[1] == "exe") {
-                ofstream fileout("ram/winExecutable.exe", ios::binary);
-                fileout.write(target->value.data(), static_cast<streamsize>(target->value.size()));
-                fileout.close();
+                #ifdef _WIN32
+                    ofstream fileout("ram/winExecutable.exe", ios::binary);
+                    fileout << target->value;
+                    fileout.close();
 
-                system("cd ram && winExecutable.exe");
+                    system("cd ram && winExecutable.exe");
+                #else
+                    ofstream fileout("ram/linuxExecutable", ios::binary);
+                    fileout << target->value;
+                    fileout.close();
 
-                ofstream fileErase("ram/winExecutable.exe");
-                fileErase.close();
+                    system("chmod +x ram/linuxExecutable");
+                    system("cd ram && ./linuxExecutable");
+                #endif
             } else {
                 throwError(err::invalid_file_type, stx::red);
             }
@@ -572,7 +580,15 @@ int main() {
                 fileout << target->value;
                 fileout.close();
 
-                if (system("g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe") != 0) {
+                #ifdef _WIN32
+                    const string compiledPath = "ram/cppCompiled.exe";
+                    const string compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe";
+                #else
+                    const string compiledPath = "ram/cppCompiled";
+                    const string compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled";
+                #endif
+
+                if (system(compileCmd.c_str()) != 0) {
                     throwError(err::fail_compile, stx::red);
                     continue;
                 }
@@ -580,10 +596,10 @@ int main() {
                 ofstream fileErase("ram/cppCompileable.cpp");
                 fileErase.close();
 
-                ifstream filein("ram/cppCompiled.exe", ios::binary);
+                ifstream filein(compiledPath, ios::binary);
                 auto output = string(istreambuf_iterator(filein), istreambuf_iterator<char>());
                 filein.close();
-                filesystem::remove("ram/cppCompiled.exe");
+                filesystem::remove(compiledPath);
 
                 if (getChild(target->parent, target->name, "exe")) {
                     removeChild(target->parent, target->name, "exe");

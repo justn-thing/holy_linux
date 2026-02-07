@@ -13,9 +13,9 @@
 #include <chrono>
 #include <filesystem>
 #include <string_view>
-#include "Syntax.h"
-#include "Misc.h"
-#include "Errors.h"
-#include "Pages.h"
-#include "Nodes.h"
-#include "FileSaving.h"
+#include "Syntax.hpp"
+#include "Misc.hpp"
+#include "Errors.hpp"
+#include "Pages.hpp"
+#include "Nodes.hpp"
+#include "FileSaving.hpp"
