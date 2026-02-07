@@ -25,7 +25,6 @@ inline void loadBootCfg(Node* root) {
     filein.close();
 }
 
-// vibe code
 inline string serializeNode(const Node* node);
 
 inline string serializeDir(const Node* dir) {
@@ -58,13 +57,14 @@ inline string serializeNode(const Node* node) {
     return out;
 }
 
-inline void saveFilesystem(const Node* root) {
+inline bool saveFilesystem(const Node* root) {
     ofstream out("rom/fileSystem.txt", ios::binary);
-    if (!out.is_open()) return;
+    if (!out.is_open()) return false;
 
     for (const unique_ptr<Node>& child : root->children) {
         out << serializeNode(child.get());
     }
+    return true;
 }
 
 inline void loadNode(Node* parent, istream& in);
@@ -135,11 +135,12 @@ inline void loadNode(Node* parent, istream& in) {
     }
 }
 
-inline void loadFilesystem(Node* root) {
+inline bool loadFilesystem(Node* root) {
     ifstream fs("rom/fileSystem.txt", ios::binary);
-    if (!fs.is_open()) return;
+    if (!fs.is_open()) return false;
 
     while (fs.peek() != EOF) {
         loadNode(root, fs);
     }
+    return true;
 }

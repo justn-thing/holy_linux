@@ -45,15 +45,16 @@ This is the in-app help text, summarized:
 - `cd [arg]` change directory (absolute or relative)
 - `dir` / `ls [arg]` list directory contents
 - `mkdir [arg]`, `rmdir [-r] [arg]` create/remove directory
-- `mkfile [name.ext]`, `rmfile [name.ext]` create/remove file
+- `mkfile` / `touch [name.ext]` create a file (defaults to `.txt`)
+- `rmfile` / `rm [name.ext]` remove a file
 - `rename [path] [name]` rename directory or file
 - `write` / `wr [name.ext]` open Holy Vim editor
 - `edit [name.ext]` edit while keeping existing content
-- `read [name.ext]` print file contents
+- `read` / `cat [name.ext]` print file contents
 - `execute` / `exec [name.ext]` run `.cmd`, `.py`, or `.exe`
 - `compile` / `comp [name.cpp]` compile to `.exe`
 - `mount [path] [name]` mount external file to `/root/mnt` (sudo only)
-- `help`, `clear`, `fetch`, `poweroff`
+- `help`, `clear`, `cls`, `fetch`, `pwd`, `poweroff [-d]` (use `-d` to discard changes)
 
 ## Notes
 

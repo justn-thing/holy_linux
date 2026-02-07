@@ -24,7 +24,8 @@ namespace stx /* syntax */ {
     constexpr std::string_view bg_cyan = "\033[46m";
     constexpr std::string_view bg_white = "\033[47m";
     constexpr std::string_view bg_gray = "\033[100m";
-    constexpr std::string_view clear = "\033[2J\033[H";
+    constexpr std::string_view move_to_top = "\033[2J\033[H";
+    constexpr std::string_view clear = "\033[2J\033[H\033[3J";
 
     inline void clearConsole() {
         #ifdef _WIN32

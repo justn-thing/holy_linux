@@ -16,8 +16,6 @@ namespace err /* error */ {
     constexpr std::string_view unknown_file_type = "Unknown file type.\n";
     constexpr std::string_view arg_missing = "Required argument missing.\n";
     constexpr std::string_view cant_remove_self = "Cannot remove current directory.\n";
-    constexpr std::string_view cant_remove_root = "Cannot remove root.\n";
-    constexpr std::string_view cant_rename_root = "Cannot rename root.\n";
     constexpr std::string_view cant_move_root = "Cannot move root.\n";
     constexpr std::string_view mkfile_dir = "Cannot create directories with mkfile.\n";
     constexpr std::string_view rmfile_dir = "Cannot remove directories with rmfile.\n";
@@ -26,6 +24,8 @@ namespace err /* error */ {
     constexpr std::string_view fail_load_holyvim = "Failed to load Holy Vim help page text file.\n\n";
     constexpr std::string_view fail_load_startupcfg = "Failed to load startup config file.\n\n";
     constexpr std::string_view fail_save_startupcfg = "Failed to save startup config file.\n\n";
+    constexpr std::string_view fail_load_filesystem = "Failed to load filesystem file.\n\n";
+    constexpr std::string_view fail_save_filesystem = "Failed to save filesystem file.\n\n";
     constexpr std::string_view fail_mount = "Failed to mount file.\n";
     constexpr std::string_view fail_compile = "Failed to compile file.\n";
     constexpr std::string_view mnt_doesnt_exist = "/root/mnt does not exist.\n";

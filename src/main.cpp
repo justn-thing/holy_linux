@@ -5,7 +5,9 @@ int main() {
 
     const auto root = make_unique<Node>("dir", "root", "");
     Node* current = root.get();
-    loadFilesystem(current);
+    if (const bool loadFilesystemSuccess = loadFilesystem(current);
+        !loadFilesystemSuccess)
+        throwError(err::fail_load_filesystem, stx::red);
 
     size_t executionState = -1;
     string* executionValue = nullptr;
@@ -21,7 +23,7 @@ int main() {
         executionValue = &startupBuffer;
         startupConfigPhase = true;
     } else {
-        throwError(err::fail_load_startupcfg, stx::yellow);
+        throwError(err::fail_load_startupcfg, stx::red);
     }
 
     bool sudo;
@@ -209,27 +211,38 @@ int main() {
                 removeNode(target, recursive);
             }
         }
-        else if (cmd == "mkfile") {
+        else if (cmd == "mkfile" || cmd == "touch") {
             vector<string> file = split(arg, '.');
 
             if (arg.find('/') != string::npos) {
                 throwError(err::invalid_arg, stx::yellow);
                 continue;
             }
-
             if (arg.empty()) {
                 throwError(err::arg_missing, stx::yellow);
-            } else if (file.size() != 2) {
-                throwError(err::invalid_arg, stx::yellow);
-            } else if (file[1] == "dir") {
-                throwError(err::mkfile_dir, stx::yellow);
-            } else if (getChild(current, file[0], file[1])) {
-                throwError(err::file_alr_exists, stx::yellow, startupConfigPhase);
-            } else {
-                newChild(current, file[0], file[1]);
+                continue;
             }
+
+            if (const size_t fileSize = file.size();
+                fileSize == 1) {
+                file.emplace_back("txt");
+            } else if (fileSize != 2) {
+                throwError(err::invalid_arg, stx::yellow);
+                continue;
+            }
+
+            if (file[1] == "dir") {
+                throwError(err::mkfile_dir, stx::yellow);
+                continue;
+            }
+            if (getChild(current, file[0], file[1])) {
+                throwError(err::file_alr_exists, stx::yellow, startupConfigPhase);
+                continue;
+            }
+
+            newChild(current, file[0], file[1]);
         }
-        else if (cmd == "rmfile") {
+        else if (cmd == "rmfile" || cmd == "rm") {
             if (arg.empty()) {
                 throwError(err::arg_missing, stx::yellow);
                 continue;
@@ -243,6 +256,7 @@ int main() {
                 }
                 if (target->type == "dir") {
                     throwError(err::rmfile_dir, stx::yellow);
+                    continue;
                 }
                 if (target->metadata.sudo && !sudo) {
                     throwError(err::not_sudo, stx::yellow);
@@ -342,7 +356,7 @@ int main() {
                     throwError(err::file_not_found, stx::red);
                     continue;
                 }
-                if (getChild(current->parent, name, file[1])) {
+                if (getChild(current, name, file[1])) {
                     throwError(err::file_alr_exists, stx::yellow);
                     continue;
                 }
@@ -460,7 +474,7 @@ int main() {
                 ++vimIndex;
             }
         }
-        else if (cmd == "read") {
+        else if (cmd == "read" || cmd == "cat") {
             if (arg.empty()) {
                 throwError(err::arg_missing, stx::yellow);
                 continue;
@@ -489,7 +503,10 @@ int main() {
                 continue;
             }
             vector<string> file = split(arg, '.');
-            if (file.size() != 2) {
+            if (const size_t fileSize = file.size();
+                fileSize == 1) {
+                file.emplace_back("elf");
+            } else if (file.size() != 2) {
                 throwError(err::invalid_arg, stx::yellow);
                 continue;
             }
@@ -508,22 +525,22 @@ int main() {
                 executionState = 0;
                 executionValue = &target->value;
             } else if (file[1] == "py") {
-                ofstream fileout("ram\\pythonExecutable.txt");
+                ofstream fileout("ram/pythonExecutable.txt");
                 fileout << target->value;
                 fileout.close();
 
-                system("py ram\\pythonExecutable.txt");
+                system("py ram/pythonExecutable.txt");
 
-                ofstream fileErase("ram\\pythonExecutable.txt");
+                ofstream fileErase("ram/pythonExecutable.txt");
                 fileErase.close();
             } else if (file[1] == "exe") {
-                ofstream fileout("ram\\winExecutable.exe", ios::binary);
+                ofstream fileout("ram/winExecutable.exe", ios::binary);
                 fileout.write(target->value.data(), static_cast<streamsize>(target->value.size()));
                 fileout.close();
 
                 system("cd ram && winExecutable.exe");
 
-                ofstream fileErase("ram\\winExecutable.exe");
+                ofstream fileErase("ram/winExecutable.exe");
                 fileErase.close();
             } else {
                 throwError(err::invalid_file_type, stx::red);
@@ -551,22 +568,22 @@ int main() {
             }
 
             if (file[1] == "cpp") {
-                ofstream fileout("ram\\cppCompileable.cpp");
+                ofstream fileout("ram/cppCompileable.cpp");
                 fileout << target->value;
                 fileout.close();
 
-                if (system("g++ ram\\cppCompileable.cpp -o ram\\cppCompiled.exe") != 0) {
+                if (system("g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe") != 0) {
                     throwError(err::fail_compile, stx::red);
                     continue;
                 }
 
-                ofstream fileErase("ram\\cppCompileable.cpp");
+                ofstream fileErase("ram/cppCompileable.cpp");
                 fileErase.close();
 
-                ifstream filein("ram\\cppCompiled.exe", ios::binary);
+                ifstream filein("ram/cppCompiled.exe", ios::binary);
                 auto output = string(istreambuf_iterator(filein), istreambuf_iterator<char>());
                 filein.close();
-                system("del /q ram\\cppCompiled.exe");
+                filesystem::remove("ram/cppCompiled.exe");
 
                 if (getChild(target->parent, target->name, "exe")) {
                     removeChild(target->parent, target->name, "exe");
@@ -721,17 +738,31 @@ int main() {
         else if (cmd == "help") {
             cout << page::help << "\n";
         }
-        else if (cmd == "clear") {
+        else if (cmd == "clear" || cmd == "cls") {
             stx::clearConsole();
         }
         else if (cmd == "fetch") {
             cout << page::fetch << "\n";
         }
+        else if (cmd == "pwd") {
+            cout << getPath(current) << "\n";
+        }
         else if (cmd == "poweroff") {
             cout << "System shutdown in progress.\n";
 
-            saveFilesystem(root.get());
+            bool discardChanges = false;
+            for (const char flag : flags) {
+                discardChanges |= flag == 'd';
+            }
 
+            if (discardChanges) break;
+
+            cout << stx::green << "Saving filesystem..." << stx::reset << "\n";
+            if (const bool saveSuccess = saveFilesystem(root.get());
+                !saveSuccess)
+                throwError(err::fail_save_filesystem, stx::red);
+
+            cout << stx::green << "Saving startup config..." << stx::reset << "\n";
             const Node* boot = getChild(root.get(), "boot", "dir");
             if (!boot) {
                 throwError(err::fail_save_startupcfg, stx::red);
