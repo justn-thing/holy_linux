@@ -18,11 +18,25 @@ if(MINGW)
     target_link_options(holy_linux PRIVATE
         -static
     )
-    target_link_libraries(holy_linux PRIVATE
-        -Wl,-Bstatic
-        -lwinpthread
-        -Wl,-Bdynamic
+    get_filename_component(MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(MINGW_ROOT "${MINGW_BIN_DIR}" DIRECTORY)
+    find_library(WINPTHREAD_STATIC
+        NAMES libwinpthread.a winpthread
+        PATHS "${MINGW_ROOT}/x86_64-w64-mingw32/lib"
     )
+    if(WINPTHREAD_STATIC)
+        target_link_libraries(holy_linux PRIVATE
+            -Wl,-Bstatic
+            "${WINPTHREAD_STATIC}"
+            -Wl,-Bdynamic
+        )
+    else()
+        target_link_libraries(holy_linux PRIVATE
+            -Wl,-Bstatic
+            -l:libwinpthread.a
+            -Wl,-Bdynamic
+        )
+    endif()
 else()
     find_package(Threads REQUIRED)
     target_link_libraries(holy_linux PRIVATE Threads::Threads)
