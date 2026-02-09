@@ -129,9 +129,9 @@ inline void loadNode(Node* parent, istream& in) {
         node->value.resize(payloadSize);
         in.read(node->value.data(), static_cast<streamsize>(payloadSize));
 
-        if (static_cast<size_t>(in.gcount()) != payloadSize) {
+        /*if (static_cast<size_t>(in.gcount()) != payloadSize) {
             throw runtime_error("unexpected EOF in file");
-        }
+        }*/
     }
 }
 
