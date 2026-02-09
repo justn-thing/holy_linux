@@ -14,13 +14,16 @@ target_link_options(holy_linux PRIVATE
     -static-libgcc
 )
 
-find_package(Threads REQUIRED)
-target_link_libraries(holy_linux PRIVATE Threads::Threads)
-
-if(WIN32)
+if(MINGW)
     target_link_options(holy_linux PRIVATE
+        -static
+    )
+    target_link_libraries(holy_linux PRIVATE
         -Wl,-Bstatic
-        -l:libwinpthread.a
+        -lwinpthread
         -Wl,-Bdynamic
     )
+else()
+    find_package(Threads REQUIRED)
+    target_link_libraries(holy_linux PRIVATE Threads::Threads)
 endif()
