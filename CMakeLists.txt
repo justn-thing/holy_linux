@@ -13,3 +13,9 @@ target_link_options(holy_linux PRIVATE
         -static-libstdc++
         -static-libgcc
 )
+
+if(WIN32)
+    target_link_options(holy_linux PRIVATE
+            -l:libwinpthread.a
+    )
+endif()
