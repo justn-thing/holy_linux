@@ -17,3 +17,10 @@ target_link_options(holy_linux PRIVATE
 find_package(Threads REQUIRED)
 target_link_libraries(holy_linux PRIVATE Threads::Threads)
 
+if(WIN32)
+    target_link_options(holy_linux PRIVATE
+        -Wl,-Bstatic
+        -l:libwinpthread.a
+        -Wl,-Bdynamic
+    )
+endif()
