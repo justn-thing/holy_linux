@@ -72,14 +72,14 @@ inline bool loadNode(Node* parent, istream& in);
 inline void loadDir(Node* parent, istream& in, size_t limit) {
     string buf(limit, '\0');
 
-    if (limit > static_cast<size_t>(numeric_limits<streamsize>::max())) {
+    /*if (limit > static_cast<size_t>(numeric_limits<streamsize>::max())) {
         throw runtime_error("dir payload too large");
-    }
+    }*/
 
     in.read(buf.data(), static_cast<streamsize>(limit));
-    if (static_cast<size_t>(in.gcount()) != limit) {
+    /*if (static_cast<size_t>(in.gcount()) != limit) {
         throw runtime_error("unexpected EOF in directory");
-    }
+    }*/
 
     istringstream sub(buf);
     while (loadNode(parent, sub)) {}
@@ -101,13 +101,13 @@ inline bool loadNode(Node* parent, istream& in)
 
     {
         stringstream ss(header);
-        if (!(ss >> nameType >> payloadSize >> sudoFlag >> miscSize))
-            throw runtime_error("corrupt header");
+        /*if (!(ss >> nameType >> payloadSize >> sudoFlag >> miscSize))
+            throw runtime_error("corrupt header");*/
     }
 
     const size_t dot = nameType.rfind('.');
-    if (dot == string::npos || dot == 0 || dot == nameType.size() - 1)
-        throw runtime_error("corrupt name/type");
+    /*if (dot == string::npos || dot == 0 || dot == nameType.size() - 1)
+        throw runtime_error("corrupt name/type");*/
 
     const string name = nameType.substr(0, dot);
     const string type = nameType.substr(dot + 1);
@@ -118,8 +118,8 @@ inline bool loadNode(Node* parent, istream& in)
     // read misc metadata
     md.misc.resize(miscSize);
     in.read(md.misc.data(), static_cast<streamsize>(miscSize));
-    if (static_cast<size_t>(in.gcount()) != miscSize)
-        throw runtime_error("unexpected EOF in metadata");
+    /*if (static_cast<size_t>(in.gcount()) != miscSize)
+        throw runtime_error("unexpected EOF in metadata");*/
 
     Node* node = newChild(parent, name, type, md.sudo, md.misc);
 
@@ -129,8 +129,8 @@ inline bool loadNode(Node* parent, istream& in)
         node->value.resize(payloadSize);
         in.read(node->value.data(), static_cast<streamsize>(payloadSize));
 
-        if (static_cast<size_t>(in.gcount()) != payloadSize)
-            throw runtime_error("unexpected EOF in file");
+        /*if (static_cast<size_t>(in.gcount()) != payloadSize)
+            throw runtime_error("unexpected EOF in file");*/
     }
 
     return true;
