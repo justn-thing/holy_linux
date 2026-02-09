@@ -1,5 +1,5 @@
-boot.dir 268 0 0
-startupConfig.cmd 242 0 0
+boot.dir 268 1 0
+startupConfig.cmd 242 1 0
 sudo mkdir boot
 cd boot
 sudo mkfile startupConfig.cmd
@@ -16,8 +16,8 @@ sudo lock /root/boot
 sudo lock /root/bin
 sudo lock /root/mnt
 mnt.dir 0 1 0
-home.dir 56 0 0
-admin.dir 39 0 0
-documents.dir 0 0 0
-programs.dir 0 0 0
-bin.dir 0 0 0
+home.dir 56 1 0
+admin.dir 39 1 0
+documents.dir 0 1 0
+programs.dir 0 1 0
+bin.dir 0 1 0
