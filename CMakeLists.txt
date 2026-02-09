@@ -16,6 +16,6 @@ target_link_options(holy_linux PRIVATE
 
 if(WIN32)
     target_link_options(holy_linux PRIVATE
-            -l:libwinpthread.a
+            -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic
     )
 endif()
