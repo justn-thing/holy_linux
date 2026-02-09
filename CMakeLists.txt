@@ -10,12 +10,9 @@ set_target_properties(holy_linux PROPERTIES
 )
 
 target_link_options(holy_linux PRIVATE
+        -static
         -static-libstdc++
         -static-libgcc
 )
 
-if(WIN32)
-    target_link_options(holy_linux PRIVATE
-            -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic
-    )
-endif()
+
