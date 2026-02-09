@@ -67,7 +67,7 @@ inline bool saveFilesystem(const Node* root) {
     return true;
 }
 
-inline void loadNode(Node* parent, istream& in);
+inline bool loadNode(Node* parent, istream& in);
 
 inline void loadDir(Node* parent, istream& in, size_t limit) {
     string buf(limit, '\0');
@@ -82,14 +82,17 @@ inline void loadDir(Node* parent, istream& in, size_t limit) {
     }
 
     istringstream sub(buf);
-    while (sub.peek() != EOF) {
-        loadNode(parent, sub);
-    }
+    while (loadNode(parent, sub)) {}
 }
 
-inline void loadNode(Node* parent, istream& in) {
+inline bool loadNode(Node* parent, istream& in)
+{
     string header;
-    if (!getline(in, header)) return;
+    if (!getline(in, header))
+        return false; // clean EOF
+
+    if (header.empty())
+        return false; // ignore trailing newline safely
 
     string nameType;
     size_t payloadSize;
@@ -98,15 +101,13 @@ inline void loadNode(Node* parent, istream& in) {
 
     {
         stringstream ss(header);
-        if (!(ss >> nameType >> payloadSize >> sudoFlag >> miscSize)) {
+        if (!(ss >> nameType >> payloadSize >> sudoFlag >> miscSize))
             throw runtime_error("corrupt header");
-        }
     }
 
     const size_t dot = nameType.rfind('.');
-    if (dot == string::npos || dot == 0 || dot == nameType.size() - 1) {
+    if (dot == string::npos || dot == 0 || dot == nameType.size() - 1)
         throw runtime_error("corrupt name/type");
-    }
 
     const string name = nameType.substr(0, dot);
     const string type = nameType.substr(dot + 1);
@@ -114,12 +115,11 @@ inline void loadNode(Node* parent, istream& in) {
     Metadata md;
     md.sudo = (sudoFlag != 0);
 
-    // Read misc metadata
+    // read misc metadata
     md.misc.resize(miscSize);
     in.read(md.misc.data(), static_cast<streamsize>(miscSize));
-    if (static_cast<size_t>(in.gcount()) != miscSize) {
+    if (static_cast<size_t>(in.gcount()) != miscSize)
         throw runtime_error("unexpected EOF in metadata");
-    }
 
     Node* node = newChild(parent, name, type, md.sudo, md.misc);
 
@@ -129,18 +129,17 @@ inline void loadNode(Node* parent, istream& in) {
         node->value.resize(payloadSize);
         in.read(node->value.data(), static_cast<streamsize>(payloadSize));
 
-        /*if (static_cast<size_t>(in.gcount()) != payloadSize) {
+        if (static_cast<size_t>(in.gcount()) != payloadSize)
             throw runtime_error("unexpected EOF in file");
-        }*/
     }
+
+    return true;
 }
 
 inline bool loadFilesystem(Node* root) {
     ifstream fs("rom/fileSystem.txt", ios::binary);
     if (!fs.is_open()) return false;
 
-    while (fs.peek() != EOF) {
-        loadNode(root, fs);
-    }
+    while (loadNode(root, fs)) {}
     return true;
 }
