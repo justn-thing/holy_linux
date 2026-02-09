@@ -6,13 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(holy_linux src/main.cpp)
 set_target_properties(holy_linux PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build
 )
 
 target_link_options(holy_linux PRIVATE
-        -static
-        -static-libstdc++
-        -static-libgcc
+    -static-libstdc++
+    -static-libgcc
 )
 
+find_package(Threads REQUIRED)
+target_link_libraries(holy_linux PRIVATE Threads::Threads)
 
