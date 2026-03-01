@@ -1,63 +1,99 @@
-# holy_linux
+# Holy Linux
 
-Small C++23 "toy OS" shell that simulates a filesystem in memory and persists it to disk.
+Small C++23 simulated OS shell that keeps a virtual filesystem in memory and persists it to `rom/fileSystem.txt`.
 
-## What It Does
+## Features
 
-- Boots, runs a scripted startup config, then drops into an interactive prompt.
-- Manages a virtual filesystem (directories and files) under `/root`.
-- Provides a mini editor ("Holy Vim") and simple command execution.
-- Persists state to `rom/` and temporary execution buffers to `ram/`.
+- Boot flow with startup script execution (`/boot/startupConfig.cmd` inside the virtual filesystem).
+- Multi-user login with per-user passwords stored in `/etc/login.txt` (virtual filesystem file).
+- Root escalation via `sudo` (prompts for root password when needed).
+- In-shell filesystem operations (`cd`, `mkdir`, `touch`, `rm`, `rename`, `copy`, `move`, locking).
+- Built-in editor (`Holy Vim`) for `.txt`, `.cmd`, `.py`, and `.cpp` files.
+- Script/program execution (`.cmd`, `.py`, `.exe`) and C++ compilation to virtual `.exe`.
 
 ## Build
 
-Requires CMake 4.0+ and a C++23-capable compiler.
+Requires CMake and a C++23-capable compiler.
 
 ```sh
 cmake -S . -B cmake-build
 cmake --build cmake-build
 ```
 
-The binary is written to `build/holy_linux.exe` (per `CMakeLists.txt`).
+Per `CMakeLists.txt`, runtime output is placed in `build/`.
+
+## Requirements
+
+- C++23 toolchain (project is built for MinGW/g++ workflow)
+- CMake
+- `g++` on `PATH` (required by in-app `compile` / `comp`)
+- `py` (Windows) or `python3` (Linux) on `PATH` (used by in-app `execute` for `.py`)
+- Run from repository root so `rom/` and `ram/` paths resolve
 
 ## Run
 
-Run from the project root so the program can find `rom/` and `ram/`:
+Run from project root so relative `rom/` and `ram/` paths resolve correctly:
 
 ```sh
 build/holy_linux.exe
 ```
 
-## Project Layout
+## Runtime Directories
 
-- `src/` C++ sources
-- `rom/` persistent storage
-  - `rom/startup.txt` boot-time command script
-  - `rom/fileSystem.txt` serialized filesystem
-- `ram/` temp files used by `execute` and `compile`
-- `build/` output directory
+- `rom/` persistent virtual filesystem image (`fileSystem.txt`)
+- `ram/` temp files used by `execute`/`compile`
+- `src/` source code
 
-## Commands (User-Facing)
+## Quick Demo
 
-This is the in-app help text, summarized:
+Example first-run flow:
 
-- `sudo [cmd] [arg]` run a command with admin permissions
-- `cd [arg]` change directory (absolute or relative)
+```text
+mkdir test
+cd test
+touch hello.txt
+write hello.txt
+read hello.txt
+password newpass newpass
+pwd
+poweroff
+```
+
+## Commands
+
+- `sudo [cmd] [arg]` run a command with root privileges
+
+Navigation
+- `cd [arg]` change directory
 - `dir` / `ls [arg]` list directory contents
-- `mkdir [arg]`, `rmdir [-r] [arg]` create/remove directory
-- `mkfile` / `touch [name.ext]` create a file (defaults to `.txt`)
-- `rmfile` / `rm [name.ext]` remove a file
-- `rename [path] [name]` rename directory or file
-- `write` / `wr [name.ext]` open Holy Vim editor
-- `edit [name.ext]` edit while keeping existing content
+- `pwd` print current path
+
+Filesystem
+- `mkdir [name]` create directory
+- `rmdir [-r] [name]` remove directory
+- `mkfile` / `touch [name]` create file (defaults to `.txt`)
+- `rmfile` / `rm [name.ext]` remove file
+- `rename [path] [name]` rename file or directory
+- `copy` / `cp [src] [dest]` copy file to directory (`dest` optional, defaults to current directory)
+- `move` / `mv [src] [dest]` move file to directory (`dest` optional, defaults to current directory)
+- `lock [path]` lock node (sudo only)
+- `unlock [path]` unlock node (sudo only)
+
+Editing
+- `write` / `wr [name.ext]` open Holy Vim for supported text types
+- `edit [name.ext]` edit existing file in Holy Vim
 - `read` / `cat [name.ext]` print file contents
+
+Execution
 - `execute` / `exec [name.ext]` run `.cmd`, `.py`, or `.exe`
-- `compile` / `comp [name.cpp]` compile to `.exe`
-- `mount [path] [name]` mount external file to `/root/mnt` (sudo only)
-- `help`, `clear`, `cls`, `fetch`, `pwd`, `poweroff [-d]` (use `-d` to discard changes)
+- `compile` / `comp [name.cpp]` compile to `.exe` (requires `g++`)
 
-## Notes
+Mount
+- `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/root/mnt` (sudo only)
 
-- Paths are rooted at `/root`; `cd ..` moves up.
-- `execute` uses local tooling (`py`, `g++`) if present.
-- `compile` expects `g++` on PATH and writes an `.exe` into the virtual FS.
+System
+- `password` / `passwd [new] [confirm]` change current user password
+- `help` show help page
+- `clear` / `cls` clear terminal
+- `fetch` display release banner
+- `poweroff [-d]` shutdown (`-d` discards changes)
