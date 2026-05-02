@@ -1,16 +1,15 @@
 #pragma once
-#include "../ui/Messages.hpp"
 
 struct PassReturn {
     bool success = false;
     std::string pass;
 };
 
-inline bool changePassword(const std::string& username, const std::string& password) {
-    const Node* etc = getChild(FS::root, "etc", "dir");
+inline bool ChangePassword(const std::string& username, const std::string& password) {
+    const Node* etc = GetChild(FS::root, "etc", "dir");
     if (!etc)
         return false;
-    Node* loginPass = getChild(etc, "login", "txt");
+    Node* loginPass = GetChild(etc, "login", "txt");
     if (!loginPass)
         return false;
 
@@ -48,13 +47,13 @@ inline bool changePassword(const std::string& username, const std::string& passw
     return true;
 }
 
-inline PassReturn getCorrectPass(const std::string& userName) {
+inline PassReturn GetCorrectPass(const std::string& userName) {
     PassReturn passReturn;
 
-    const Node* etc = getChild(FS::root, "etc", "dir");
+    const Node* etc = GetChild(FS::root, "etc", "dir");
     if (!etc)
         return passReturn;
-    const Node* loginPass = getChild(etc, "login", "txt");
+    const Node* loginPass = GetChild(etc, "login", "txt");
     if (!loginPass)
         return passReturn;
     for (const std::string& user : split(loginPass->value, '\n')) {
@@ -71,7 +70,7 @@ inline PassReturn getCorrectPass(const std::string& userName) {
 
 inline bool LoginRoot() {
     std::string enteredPass;
-    auto [success, pass] = getCorrectPass("..root..");
+    auto [success, pass] = GetCorrectPass("//root//");
     if (!success) {
         std::string newPass;
         std::string confirmPass;
@@ -81,7 +80,7 @@ inline bool LoginRoot() {
             std::cout << "Please confirm the new root password: ";
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
-                changePassword("..root..", newPass);
+                ChangePassword("//root//", newPass);
                 SData::root = true;
                 break;
             }
@@ -90,7 +89,7 @@ inline bool LoginRoot() {
         return true;
     }
 
-    for (auto i{0uz}; i < 3; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
         std::cout << "Password for root: ";
         std::getline(std::cin, enteredPass);
 
@@ -106,7 +105,7 @@ inline bool LoginRoot() {
 }
 
 inline int Login() {
-    const Node* home = getChild(FS::root, "home", "dir");
+    const Node* home = GetChild(FS::root, "home", "dir");
     if (!home)
         return 1;
 
@@ -139,7 +138,7 @@ inline int Login() {
             std::cout << "): ";
             std::getline(std::cin, temp);
 
-            if (getChild(home, temp, "dir")) {
+            if (GetChild(home, temp, "dir")) {
                 userName = temp;
                 break;
             }
@@ -147,7 +146,7 @@ inline int Login() {
     }
 
     std::string enteredPass;
-    auto [success, pass] = getCorrectPass(userName);
+    auto [success, pass] = GetCorrectPass(userName);
     if (!success) {
         std::string newPass;
         std::string confirmPass;
@@ -157,22 +156,22 @@ inline int Login() {
             std::cout << "Please confirm the new " << userName << " password: ";
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
-                changePassword(userName, newPass);
+                ChangePassword(userName, newPass);
                 SData::username = userName;
-                FS::current = getAbsolute("/home/" + userName);
+                FS::current = GetAbsolute("/home/" + userName);
                 return 0;
             }
             alert(msg::pass_set_fail, stx::yellow);
         }
     }
 
-    for (auto i{0uz}; i < 3; ++i) {
+    for (size_t i = 0; i < 3; ++i) {
         std::cout << "Password for " << userName << ": ";
         std::getline(std::cin, enteredPass);
 
         if (enteredPass == pass) {
             SData::username = userName;
-            FS::current = getAbsolute("/home/" + userName);
+            FS::current = GetAbsolute("/home/" + userName);
             return 0;
         }
 

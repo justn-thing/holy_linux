@@ -1,20 +1,20 @@
 #pragma once
 
-inline std::string serializeNode(const Node* node);
+inline std::string SerializeNode(const Node* node);
 
-inline std::string serializeDir(const Node* dir) {
+inline std::string SerializeDir(const Node* dir) {
     std::string value;
     for (const std::unique_ptr<Node>& child : dir->children) {
-        value += serializeNode(child.get());
+        value += SerializeNode(child.get());
     }
     return value;
 }
 
-inline std::string serializeNode(const Node* node) {
+inline std::string SerializeNode(const Node* node) {
     std::string payload;
 
     if (node->type == "dir") {
-        payload = serializeDir(node);
+        payload = SerializeDir(node);
     } else {
         payload = node->value;
     }
@@ -32,19 +32,19 @@ inline std::string serializeNode(const Node* node) {
     return out;
 }
 
-inline bool saveFileSystem() {
+inline bool SaveFileSystem() {
     std::ofstream out("rom/fileSystem.txt", std::ios::binary);
     if (!out.is_open()) return false;
 
     for (const std::unique_ptr<Node>& child : FS::root->children) {
-        out << serializeNode(child.get());
+        out << SerializeNode(child.get());
     }
     return true;
 }
 
-inline bool loadNode(Node* parent, std::istream& in);
+inline bool LoadNode(Node* parent, std::istream& in);
 
-inline void loadDir(Node* parent, std::istream& in, const size_t limit) {
+inline void LoadDir(Node* parent, std::istream& in, const size_t limit) {
     std::string buf(limit, '\0');
 
     if (limit > static_cast<size_t>(std::numeric_limits<std::streamsize>::max())) {
@@ -52,15 +52,15 @@ inline void loadDir(Node* parent, std::istream& in, const size_t limit) {
     }
 
     in.read(buf.data(), static_cast<std::streamsize>(limit));
-    if (static_cast<size_t>(in.gcount()) != limit) {
+    if (std::cmp_not_equal(in.gcount(), limit)) {
         throw std::runtime_error("Loading filesystem failed; unexpected EOF in directory");
     }
 
     std::istringstream sub(buf);
-    while (loadNode(parent, sub)) {}
+    while (LoadNode(parent, sub)) {}
 }
 
-inline bool loadNode(Node* parent, std::istream& in)
+inline bool LoadNode(Node* parent, std::istream& in)
 {
     std::string header;
     if (!getline(in, header))
@@ -93,28 +93,28 @@ inline bool loadNode(Node* parent, std::istream& in)
     // read misc metadata
     md.misc.resize(miscSize);
     in.read(md.misc.data(), static_cast<std::streamsize>(miscSize));
-    if (static_cast<size_t>(in.gcount()) != miscSize)
+    if (std::cmp_not_equal(in.gcount(), miscSize))
         throw std::runtime_error("Loading filesystem failed; unexpected EOF in metadata");
 
-    Node* node = newChild(parent, name, type, md.sudo, md.misc);
+    Node* node = NewChild(parent, name, type, md.sudo, md.misc);
 
     if (type == "dir") {
-        loadDir(node, in, payloadSize);
+        LoadDir(node, in, payloadSize);
     } else {
         node->value.resize(payloadSize);
         in.read(node->value.data(), static_cast<std::streamsize>(payloadSize));
 
-        if (static_cast<size_t>(in.gcount()) != payloadSize)
+        if (std::cmp_not_equal(in.gcount(), payloadSize))
             throw std::runtime_error("Loading filesystem failed; unexpected EOF in file");
     }
 
     return true;
 }
 
-inline bool loadFileSystem() {
+inline bool LoadFileSystem() {
     std::ifstream fs("rom/fileSystem.txt", std::ios::binary);
     if (!fs.is_open()) return false;
 
-    while (loadNode(FS::root, fs)) {}
+    while (LoadNode(FS::root, fs)) {}
     return true;
 }

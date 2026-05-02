@@ -1,5 +1,4 @@
 #pragma once
-#include "../ui/Messages.hpp"
 
 inline int Execute(CommandParams &param, const bool startupConfigPhase = false) {
     const std::string arg = param.args.empty() ? "" : param.args[0];
@@ -10,7 +9,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        if (Node* target = getAbsolute(arg);
+        if (Node* target = GetAbsolute(arg);
             target && target->type == "dir") {
             if (target->metadata.sudo && !param.sudo)
                 alert(msg::not_sudo, stx::yellow);
@@ -21,9 +20,9 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
     }
     else if (param.cmd == "dir" || param.cmd == "ls") {
         if (arg.empty())
-            displayDir(FS::current);
-        else if (const Node* target = getAbsolute(arg))
-            displayDir(target);
+            DisplayDir(FS::current);
+        else if (const Node* target = GetAbsolute(arg))
+            DisplayDir(target);
         else
             alert(msg::dir_not_found, stx::red, startupConfigPhase);
     }
@@ -48,9 +47,9 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             name = arg.substr(index + 1);
         }
 
-        if (Node* target = getAbsolute(path);
+        if (Node* target = GetAbsolute(path);
             target && target->type == "dir")
-            newChild(target, name, "dir");
+            NewChild(target, name, "dir");
         else
             alert(msg::invalid_path, stx::red, startupConfigPhase);
     }
@@ -65,18 +64,18 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             recursive |= flag == 'r';
         }
 
-        if (const Node* target = getAbsolute(arg); !target)
+        if (const Node* target = GetAbsolute(arg); !target)
             alert(msg::dir_not_found, stx::red);
         else if (target == FS::root)
             alert(msg::cant_remove_root, stx::yellow);
-        else if (target == FS::current || (recursive && isAncestor(target, FS::current)))
+        else if (target == FS::current || (recursive && IsAncestor(target, FS::current)))
             alert(msg::cant_remove_self, stx::yellow);
         else if (target->metadata.sudo && !param.sudo)
             alert(msg::not_sudo, stx::yellow);
         else if (target->type != "dir")
             alert(msg::rmdir_file, stx::yellow);
         else
-            removeNode(target, recursive);
+            RemoveNode(target, recursive);
     }
     else if (param.cmd == "mkfile" || param.cmd == "touch") {
         if (arg.empty()) {
@@ -103,14 +102,14 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             type = name.substr(dotIndex + 1);
             name = name.substr(0, dotIndex);
         }
-        if (name.find('.') != std::string::npos || name.empty() || type.empty()) {
+        if (name.contains('.') || name.empty() || type.empty()) {
             alert(msg::invalid_arg, stx::yellow);
             return 0;
         }
 
-        if (Node* target = getAbsolute(path);
+        if (Node* target = GetAbsolute(path);
             target && target->type == "dir")
-            newChild(target, name, type);
+            NewChild(target, name, type);
         else
             alert(msg::invalid_path, stx::red, startupConfigPhase);
     }
@@ -120,26 +119,26 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        if (Node* target = getAbsolute(arg); !target)
+        if (const Node* target = GetAbsolute(arg); !target)
             alert(msg::file_not_found, stx::red);
         else if (target->type == "dir")
             alert(msg::rmfile_dir, stx::yellow);
         else if (target->metadata.sudo && !param.sudo)
             alert(msg::not_sudo, stx::yellow);
         else
-            removeNode(target);
+            RemoveNode(target);
     }
     else if (param.cmd == "rename") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
-        if (param.args[1].find('/') != std::string::npos) {
+        if (param.args[1].contains('/')) {
             alert(msg::invalid_arg, stx::yellow);
             return 0;
         }
 
-        if (Node* target = getAbsolute(arg); !target)
+        if (Node* target = GetAbsolute(arg); !target)
             alert(msg::file_not_found, stx::red);
         else if (target == FS::root)
             alert(msg::cant_rename_root, stx::yellow);
@@ -167,12 +166,12 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
                 }
             }
 
-            if (name.find('.') != std::string::npos || name.empty() || type.empty()) {
+            if (name.contains('.') || name.empty() || type.empty()) {
                 alert(msg::invalid_arg, stx::yellow);
                 return 0;
             }
             
-            if (getChild(target->parent, name, type))
+            if (GetChild(target->parent, name, type))
                 alert(msg::file_alr_exists, stx::yellow, startupConfigPhase);
             else {
                 target->name = name;
@@ -186,7 +185,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        Node* target = getAbsolute(arg);
+        Node* target = GetAbsolute(arg);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -198,7 +197,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         }
 
         bool allowed = false;
-        for (std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
+        for (const std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
             const std::string& allowedType : allowedTypes)
             allowed |= target->type == allowedType;
 
@@ -215,7 +214,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        Node* target = getAbsolute(arg);
+        const Node* target = GetAbsolute(arg);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -227,7 +226,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         }
 
         bool allowed = false;
-        for (std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
+        for (const std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
              const std::string& allowedType : allowedTypes)
             allowed |= target->type == allowedType;
 
@@ -244,7 +243,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        Node* target = getAbsolute(arg);
+        const Node* target = GetAbsolute(arg);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -256,7 +255,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
 
         if (target->type == "cmd") {
             for (const std::string& line : split(target->value, '\n')) {
-                CommandParams params = std::move(parseCommandLine(line));
+                CommandParams params = parseCommandLine(line);
                 Execute(params, true);
             }
         } else if (target->type == "py") {
@@ -296,7 +295,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        Node* target = getAbsolute(arg);
+        const Node* target = GetAbsolute(arg);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -312,14 +311,14 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             fileout.close();
 
             #ifdef _WIN32
-                const std::string compiledPath = "ram/cppCompiled.exe";
-                const std::string compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe";
+                constexpr auto compiledPath = "ram/cppCompiled.exe";
+                constexpr auto compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe";
             #else
-                const std::string compiledPath = "ram/cppCompiled";
-                const std::string compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled";
+                constexpr auto compiledPath = "ram/cppCompiled";
+                constexpr auto compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled";
             #endif
 
-            if (system(compileCmd.c_str()) != 0) {
+            if (system(compileCmd) != 0) {
                 alert(msg::fail_compile, stx::red);
                 return 0;
             }
@@ -336,8 +335,8 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             filein.close();
             std::filesystem::remove(compiledPath);
 
-            removeChild(target->parent, target->name, "exe");
-            Node* exeFile = newChild(target->parent, target->name, "exe");
+            RemoveChild(target->parent, target->name, "exe");
+            Node* exeFile = NewChild(target->parent, target->name, "exe");
             exeFile->value = std::move(output);
         } else
             alert(msg::invalid_file_type, stx::yellow);
@@ -370,14 +369,14 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         std::stringstream fileValue;
         fileValue << filein.rdbuf();
 
-        Node* mount = getChild(FS::root, "mnt", "dir");
+        Node* mount = GetChild(FS::root, "mnt", "dir");
         if (!mount) {
             alert(msg::mnt_doesnt_exist, stx::red);
             return 0;
         }
 
         bool allowed = false;
-        for (std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
+        for (const std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
             const std::string& allowedType : allowedTypes)
             allowed |= type == allowedType;
 
@@ -386,7 +385,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        if (Node* mountedFile = newChild(mount, name, type))
+        if (Node* mountedFile = NewChild(mount, name, type))
             mountedFile->value = fileValue.str();
         else
             alert(msg::file_alr_exists, stx::yellow);
@@ -400,12 +399,12 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         }
 
         if (param.args.size() < 2) {
-            targetStr = getPath(FS::current);
+            targetStr = GetPath(FS::current);
         } else
             targetStr = param.args[1];
 
-        Node* fromNode = getAbsolute(arg);
-        Node* toNode = getAbsolute(targetStr);
+        const Node* fromNode = GetAbsolute(arg);
+        Node* toNode = GetAbsolute(targetStr);
         if (!fromNode || !toNode) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -424,7 +423,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        if (Node* toChild = newChild(toNode, fromNode->name, fromNode->type, fromNode->metadata.sudo, fromNode->metadata.misc))
+        if (Node* toChild = NewChild(toNode, fromNode->name, fromNode->type, fromNode->metadata.sudo, fromNode->metadata.misc))
             toChild->value = fromNode->value;
         else {
             alert(msg::file_alr_exists, stx::yellow);
@@ -432,7 +431,7 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         }
 
         if (param.cmd == "move" || param.cmd == "mv") {
-            removeNode(fromNode);
+            RemoveNode(fromNode);
         }
     }
     else if (param.cmd == "lock" || param.cmd == "unlock") {
@@ -446,13 +445,13 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
             return 0;
         }
 
-        Node* target = getAbsolute(arg);
+        Node* target = GetAbsolute(arg);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
         }
 
-        lockNode(target, param.cmd == "lock");
+        LockNode(target, param.cmd == "lock");
     }
     else if (param.cmd == "password" || param.cmd == "passwd") {
         if (param.args.size() < 2) {
@@ -461,22 +460,32 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         }
 
         if (param.args[0] == param.args[1] && !param.args[0].empty()) {
-            if (!changePassword(SData::username, arg))
+            if (!ChangePassword(SData::username, arg))
                 alert(msg::pass_set_fail, stx::yellow);
         } else
             alert(msg::pass_set_fail, stx::yellow);
+    }
+    else if (param.cmd == "history") {
+        for (const std::string& cmd : SData::cmdHistory) {
+            std::cout << cmd << "\n";
+        }
+    }
+    else if (param.cmd == "echo") {
+        for (const std::string& word : param.args)
+            std::cout << word << " ";
+        std::cout << "\n";
     }
     else if (param.cmd == "help") {
         std::cout << page::help << "\n";
     }
     else if (param.cmd == "clear" || param.cmd == "cls") {
-        stx::clearConsole();
+        stx::ClearConsole();
     }
     else if (param.cmd == "fetch") {
         std::cout << page::fetch << "\n";
     }
     else if (param.cmd == "pwd") {
-        std::cout << getPath(FS::current) << "\n";
+        std::cout << GetPath(FS::current) << "\n";
     }
     else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
@@ -489,14 +498,14 @@ inline int Execute(CommandParams &param, const bool startupConfigPhase = false) 
         if (discardChanges) return 99;
 
         alert(msg::begin_save_fs, stx::green);
-        if (const bool saveSuccess = saveFileSystem();
+        if (const bool saveSuccess = SaveFileSystem();
             !saveSuccess)
             alert(msg::fail_save_filesystem, stx::red);
 
         return 99;
     }
     else if (!param.cmd.empty()) {
-        alert(msg::unknown_cmd, stx::red);
+        alert(msg::unknown_cmd, stx::yellow);
     }
     return 0;
 }

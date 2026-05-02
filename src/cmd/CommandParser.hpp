@@ -1,7 +1,5 @@
 #pragma once
 
-inline bool LoginRoot(bool sudo);
-
 inline CommandParams parseCommandLine(const std::string &input) {
     CommandParams result;
     result.raw = input;
@@ -25,7 +23,7 @@ inline CommandParams parseCommandLine(const std::string &input) {
     if (temp.starts_with('-'))
         result.flags = temp.substr(1);
     else
-        result.args.emplace_back(std::move(temp));
+        result.args.push_back(std::move(temp));
 
     while (ss >> temp)
         result.args.push_back(std::move(temp));

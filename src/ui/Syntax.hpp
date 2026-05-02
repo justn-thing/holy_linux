@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 namespace stx /* syntax */ {
     constexpr std::string_view reset = "\033[0m";
     constexpr std::string_view black = "\033[30m";
@@ -27,9 +23,9 @@ namespace stx /* syntax */ {
     constexpr std::string_view move_to_top = "\033[2J\033[H";
     constexpr std::string_view clear = "\033[2J\033[H\033[3J";
 
-    inline void clearConsole() {
+    inline void ClearConsole() {
         #ifdef _WIN32
-            const auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+            auto* const handle = GetStdHandle(STD_OUTPUT_HANDLE);
             if (handle == INVALID_HANDLE_VALUE) return;
 
             CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -37,7 +33,7 @@ namespace stx /* syntax */ {
 
             const DWORD size = static_cast<DWORD>(csbi.dwSize.X) * static_cast<DWORD>(csbi.dwSize.Y);
             DWORD written = 0;
-            constexpr COORD home = {0, 0};
+            constexpr COORD home = {.X=0, .Y=0};
 
             FillConsoleOutputCharacter(handle, ' ', size, home, &written);
             FillConsoleOutputAttribute(handle, csbi.wAttributes, size, home, &written);

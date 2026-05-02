@@ -6,7 +6,7 @@ namespace FS {
     inline Node* current = root;
 }
 
-inline Node* getChild(const Node* parent, const std::string& name, const std::string& type) {
+inline Node* GetChild(const Node* parent, const std::string& name, const std::string& type) {
     for (const std::unique_ptr<Node>& child : parent->children) {
         if (child->name == name && type == child->type) {
             return child.get();
@@ -16,7 +16,7 @@ inline Node* getChild(const Node* parent, const std::string& name, const std::st
     return nullptr;
 }
 
-inline std::string getPath(const Node* current) {
+inline std::string GetPath(const Node* current) {
     std::string path;
     const Node* temp = current;
 
@@ -28,8 +28,8 @@ inline std::string getPath(const Node* current) {
     return path;
 }
 
-inline std::string getCosmeticPath(const Node* current = FS::current) {
-    std::string path = getPath(current).substr(5);
+inline std::string GetCosmeticPath(const Node* current = FS::current) {
+    std::string path = GetPath(current).substr(5);
     path = path.empty() ? "/" : path;
 
     if (path.starts_with("/home/" + SData::username))
@@ -38,17 +38,17 @@ inline std::string getCosmeticPath(const Node* current = FS::current) {
     return path;
 }
 
-inline Node* getAbsolute(const std::string& arg, Node* current = FS::current) {
+inline Node* GetAbsolute(const std::string& arg, Node* current = FS::current) {
     Node* temp = nullptr;
     std::vector<std::string> parts = split(arg, '/');
 
     if (arg.starts_with('/'))
         temp = FS::root;
     else if (arg == "~" || arg.starts_with("~/")) {
-        const Node* home = getChild(FS::root, "home", "dir");
+        const Node* home = GetChild(FS::root, "home", "dir");
         if (!home)
             return nullptr;
-        Node* user = getChild(home, SData::username, "dir");
+        Node* user = GetChild(home, SData::username, "dir");
         if (!user)
             return nullptr;
 
@@ -76,7 +76,7 @@ inline Node* getAbsolute(const std::string& arg, Node* current = FS::current) {
             type = part.substr(index + 1);
         }
 
-        if (Node* child = getChild(temp, name, type))
+        if (Node* child = GetChild(temp, name, type))
             temp = child;
         else
             return nullptr;
@@ -86,7 +86,7 @@ inline Node* getAbsolute(const std::string& arg, Node* current = FS::current) {
 }
 
 
-inline bool isAncestor(const Node* parent, const Node* child) {
+inline bool IsAncestor(const Node* parent, const Node* child) {
     const Node* temp = child;
     while (true) {
         if (temp == parent) {
@@ -99,19 +99,19 @@ inline bool isAncestor(const Node* parent, const Node* child) {
     }
 }
 
-inline Node* newChild(Node* parent, const std::string& name, const std::string& type, const bool protectedFile = false,
+inline Node* NewChild(Node* parent, const std::string& name, const std::string& type, const bool protectedFile = false,
     const std::string& misc = "") {
 
-    if (getChild(parent, name, type))
+    if (GetChild(parent, name, type))
         return nullptr;
 
-    Metadata metadata = {protectedFile, misc};
+    const Metadata metadata = {.sudo=protectedFile, .misc=misc};
     parent->children.push_back(make_unique<Node>(type, name, "", metadata, parent));
 
     return parent->children.back().get();
 }
 
-inline char removeNode(const Node* node, const bool recursive = false) {
+inline char RemoveNode(const Node* node, const bool recursive = false) {
     if (!node->children.empty() && !recursive) {
         alert(msg::dir_not_empty, stx::red);
         return 2; // other
@@ -127,15 +127,15 @@ inline char removeNode(const Node* node, const bool recursive = false) {
     return 0; // fail
 }
 
-inline short removeChild(const Node* parent, const std::string& name, const std::string& type, const bool recursive = false) {
-    if (const Node* node = getChild(parent, name, type)) {
-        return removeNode(node, recursive);
+inline short RemoveChild(const Node* parent, const std::string& name, const std::string& type, const bool recursive = false) {
+    if (const Node* node = GetChild(parent, name, type)) {
+        return RemoveNode(node, recursive);
     }
 
     return 0; // fail
 }
 
-inline void displayDir(const Node* parent) {
+inline void DisplayDir(const Node* parent) {
     if (parent->children.empty()) {
         alert(msg::dir_empty, stx::red);
         return;
@@ -153,12 +153,12 @@ inline void displayDir(const Node* parent) {
     std::cout << buffer.str();
 }
 
-inline void lockNode(Node* node, const bool lock) {
+inline void LockNode(Node* node, const bool lock) {
     node->metadata.sudo = lock;
 
     if (node->type == "dir") {
-        for (std::unique_ptr<Node>& child : node->children) {
-            lockNode(child.get(), lock);
+        for (const std::unique_ptr<Node>& child : node->children) {
+            LockNode(child.get(), lock);
         }
     }
 }

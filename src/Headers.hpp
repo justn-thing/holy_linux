@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -14,6 +18,7 @@
 #include <filesystem>
 #include <string_view>
 #include <ranges>
+#include <utility>
 #include "util/Misc.hpp"
 #include "ui/Syntax.hpp"
 #include "ui/Messages.hpp"
