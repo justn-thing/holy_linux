@@ -1,5 +1,17 @@
 #pragma once
 
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "../session/SessionData.hpp"
+#include "../ui/Messages.hpp"
+#include "../ui/Syntax.hpp"
+#include "../util/Misc.hpp"
+#include "../fs/NodeStruct.hpp"
+
 namespace FS {
     inline auto unique_ptr_root = std::make_unique<Node>("dir", "root", "");
     inline Node* root = unique_ptr_root.get();
@@ -106,7 +118,7 @@ inline Node* NewChild(Node* parent, const std::string& name, const std::string& 
         return nullptr;
 
     const Metadata metadata = {.sudo=protectedFile, .misc=misc};
-    parent->children.push_back(make_unique<Node>(type, name, "", metadata, parent));
+    parent->children.push_back(std::make_unique<Node>(type, name, "", metadata, parent));
 
     return parent->children.back().get();
 }

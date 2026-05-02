@@ -1,5 +1,10 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 struct Metadata {
     bool sudo = false;
     std::string misc;

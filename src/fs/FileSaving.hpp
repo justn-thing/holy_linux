@@ -1,5 +1,16 @@
 #pragma once
 
+#include <fstream>
+#include <limits>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+#include "../fs/FileTree.hpp"
+#include "../fs/NodeStruct.hpp"
+
 inline std::string SerializeNode(const Node* node);
 
 inline std::string SerializeDir(const Node* dir) {

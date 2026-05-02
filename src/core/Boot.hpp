@@ -1,5 +1,21 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+
+#include "../cmd/CommandParser.hpp"
+#include "../cmd/CommandParams.hpp"
+#include "../cmd/Execution.hpp"
+#include "../fs/FileSaving.hpp"
+#include "../fs/FileTree.hpp"
+#include "../session/Login.hpp"
+#include "../session/SessionData.hpp"
+#include "../ui/Messages.hpp"
+#include "../ui/Pages.hpp"
+#include "../ui/Syntax.hpp"
+#include "../util/Misc.hpp"
+#include "../core/Run.hpp"
+
 inline void BootFileSystem() {
     alert(msg::begin_load_fs, stx::green);
 

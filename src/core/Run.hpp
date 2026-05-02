@@ -1,5 +1,15 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+
+#include "../cmd/CommandParser.hpp"
+#include "../cmd/CommandParams.hpp"
+#include "../cmd/Execution.hpp"
+#include "../fs/FileTree.hpp"
+#include "../session/SessionData.hpp"
+#include "../ui/Syntax.hpp"
+
 inline void PrintShellPrompt() {
     std::cout << stx::cyan << SData::username << stx::yellow << "@holy-linux "
               << stx::white << GetCosmeticPath() << stx::gray << " $"

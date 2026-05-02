@@ -1,5 +1,20 @@
 #pragma once
 
+#include <iostream>
+#include <chrono>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <thread>
+#include <vector>
+
+#include "../fs/FileTree.hpp"
+#include "../fs/NodeStruct.hpp"
+#include "../ui/Messages.hpp"
+#include "../ui/Syntax.hpp"
+#include "../util/Misc.hpp"
+#include "../session/SessionData.hpp"
+
 struct PassReturn {
     bool success = false;
     std::string pass;

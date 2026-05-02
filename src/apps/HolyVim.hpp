@@ -1,5 +1,17 @@
 #pragma once
 
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "../fs/NodeStruct.hpp"
+#include "../ui/Messages.hpp"
+#include "../ui/Pages.hpp"
+#include "../ui/Syntax.hpp"
+#include "../util/Misc.hpp"
+
 inline void displayIndex(const size_t& index) {
     std::cout << stx::gray << index;
     if (index < 10) {

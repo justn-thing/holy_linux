@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 namespace page {
     constexpr std::string_view fetch =
 "\033[33mHoly Linux\033[36m 2.0\n\

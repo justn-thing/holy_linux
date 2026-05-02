@@ -1,5 +1,12 @@
 #pragma once
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#include <iostream>
+#include <string_view>
+
 namespace stx /* syntax */ {
     constexpr std::string_view reset = "\033[0m";
     constexpr std::string_view black = "\033[30m";

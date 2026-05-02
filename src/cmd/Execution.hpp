@@ -1,5 +1,26 @@
 #pragma once
 
+#include <array>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <utility>
+
+#include "../apps/HolyVim.hpp"
+#include "../fs/FileSaving.hpp"
+#include "../fs/FileTree.hpp"
+#include "../session/Login.hpp"
+#include "../session/SessionData.hpp"
+#include "../ui/Messages.hpp"
+#include "../ui/Pages.hpp"
+#include "../ui/Syntax.hpp"
+#include "../util/Misc.hpp"
+#include "../cmd/CommandParams.hpp"
+#include "../cmd/CommandParser.hpp"
+
 inline int Execute(CommandParams &param, const bool startupConfigPhase = false) {
     const std::string arg = param.args.empty() ? "" : param.args[0];
 

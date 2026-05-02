@@ -1,5 +1,11 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+#include <string_view>
+
+#include "../ui/Syntax.hpp"
+
 namespace msg {
     constexpr std::string_view not_sudo = "Insufficient permission.\n";
     constexpr std::string_view dir_not_empty = "Directory is not empty.\n";

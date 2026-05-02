@@ -1,7 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 inline std::vector<std::string> split(const std::string& s, const char delimiter,
-    const bool preserveEmpty = false, const bool preserveLast = false) {
+                                      const bool preserveEmpty = false, const bool preserveLast = false) {
 
     std::vector<std::string> tokens;
     std::string temp;

@@ -1,5 +1,13 @@
 #pragma once
 
+#include <sstream>
+#include <string>
+#include <utility>
+
+#include "../session/Login.hpp"
+#include "../session/SessionData.hpp"
+#include "../cmd/CommandParams.hpp"
+
 inline CommandParams parseCommandLine(const std::string &input) {
     CommandParams result;
     result.raw = input;
