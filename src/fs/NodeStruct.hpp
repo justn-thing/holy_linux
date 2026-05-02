@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 struct Metadata {
@@ -18,6 +17,6 @@ struct Node {
     Node* parent;
     std::vector<std::unique_ptr<Node>> children;
 
-    Node(std::string type, std::string name, std::string value = "", Metadata metadata = {false, ""}, Node* parent = nullptr)
-    : type(std::move(type)), name(std::move(name)), value(std::move(value)), metadata(std::move(metadata)), parent(parent) {}
+    Node(std::string type, std::string name, std::string value = "", Metadata metadata = {false, ""},
+         Node* parent = nullptr);
 };
