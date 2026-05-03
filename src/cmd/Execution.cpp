@@ -494,6 +494,8 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         std::cout << page::fetch << "\n";
     } else if (param.cmd == "pwd") {
         std::cout << GetPath(FS::current) << "\n";
+    } else if (param.cmd == "whoami") {
+        std::cout << SData::username << "\n";
     } else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
 
