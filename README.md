@@ -87,12 +87,18 @@ Editing
 Execution
 - `execute` / `exec [name.ext]` run `.cmd`, `.py`, or `.exe`
 - `compile` / `comp [name.cpp]` compile to `.exe` (requires `g++`)
+- `[name]` run matching `.exe`, `.cmd`, or `.py` package from `/bin`
 
 Mount
 - `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` (sudo only)
 
 System
 - `password` / `passwd [new] [confirm]` change current user password
+- `history` show command history
+- `echo [text]` print text
+- `whoami` print current user
+- `date` print current date
+- `time` print current time
 - `help` show help page
 - `clear` / `cls` clear terminal
 - `fetch` display release banner

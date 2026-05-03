@@ -35,6 +35,7 @@ namespace page {
 \033[33mExecution\033[0m\n\
 \033[36mexecute / exec [name]\033[0m      run .cmd, .py, or .exe\n\
 \033[36mcompile / comp [name.cpp]\033[0m  compile .cpp into .exe (g++ required)\n\
+\033[36m[name]\033[0m                     run package from /bin if found\n\
 \n\
 \033[33mMount\033[0m\n\
 \033[36mmount / mnt [hostPath] [name]\033[0m  mount .txt/.cmd/.py/.cpp to /root/mnt (sudo only)\n\
@@ -43,6 +44,9 @@ namespace page {
 \033[36mpassword / passwd [new] [confirm]\033[0m   change current user's password\n\
 \033[36mhistory\033[0m                 show command history\n\
 \033[36mecho [text]\033[0m             print text\n\
+\033[36mwhoami\033[0m                  print current user\n\
+\033[36mdate\033[0m                    print current date\n\
+\033[36mtime\033[0m                    print current time\n\
 \033[36mhelp\033[0m                    show this page\n\
 \033[36mclear / cls\033[0m             clear terminal\n\
 \033[36mfetch\033[0m                   display current release\n\

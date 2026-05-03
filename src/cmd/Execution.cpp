@@ -1,9 +1,11 @@
 #include "Execution.hpp"
 
 #include <array>
-#include <cstdlib>
+#include <chrono>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -266,7 +268,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         if (target->type == "cmd") {
             for (const std::string& line : split(target->value, '\n')) {
-                CommandParams params = parseCommandLine(line);
+                CommandParams params = ParseCommandLine(line);
                 Execute(params, true);
             }
         } else if (target->type == "py") {
@@ -496,6 +498,16 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         std::cout << GetPath(FS::current) << "\n";
     } else if (param.cmd == "whoami") {
         std::cout << SData::username << "\n";
+    } else if (param.cmd == "date") {
+        const auto now = std::chrono::system_clock::now();
+        const std::time_t date = std::chrono::system_clock::to_time_t(now);
+
+        std::cout << std::put_time(std::localtime(&date), "%d/%m/%Y") << "\n";
+    } else if (param.cmd == "time") {
+        const auto now = std::chrono::system_clock::now();
+        const std::time_t time = std::chrono::system_clock::to_time_t(now);
+
+        std::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << "\n";
     } else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
 
