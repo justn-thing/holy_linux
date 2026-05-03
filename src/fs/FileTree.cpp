@@ -169,3 +169,30 @@ void LockNode(Node* node, const bool lock) {
         }
     }
 }
+
+size_t GetFileSize(const Node* node) {
+    size_t payloadSize = 0;
+    if (node->type == "dir")
+        for (const std::unique_ptr<Node>& child : node->children) {
+            payloadSize += GetFileSize(child.get());
+        }
+    else
+        payloadSize = node->value.length();
+
+    if (node == FS::root)
+        return payloadSize;
+
+    const size_t miscSize = node->metadata.misc.length();
+    const size_t headerSize = node->name.length()
+                              + 1 // "."
+                              + node->type.length()
+                              + 1 // " "
+                              + std::to_string(payloadSize).length()
+                              + 1 // " "
+                              + 1 // sudo flag
+                              + 1 // " "
+                              + std::to_string(miscSize).length()
+                              + 1; // "\n"
+
+    return headerSize + miscSize + payloadSize;
+}

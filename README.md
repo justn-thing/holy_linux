@@ -76,6 +76,7 @@ Filesystem
 - `rename [path] [name]` rename file or directory
 - `copy` / `cp [src] [dest]` copy file to directory (`dest` optional, defaults to current directory)
 - `move` / `mv [src] [dest]` move file to directory (`dest` optional, defaults to current directory)
+- `du [path]` show serialized file size (`path` optional, defaults to current directory)
 - `lock [path]` lock node (sudo only)
 - `unlock [path]` unlock node (sudo only)
 

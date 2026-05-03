@@ -2,7 +2,7 @@
 
 namespace page {
     const std::string_view fetch =
-"\033[33mHoly Linux\033[36m 2.2\n\
+"\033[33mHoly Linux\033[36m 2.3\n\
 \033[90m==============================\n\
 \033[0mDeveloped by me, myself and I.\n\n";
 
@@ -23,6 +23,7 @@ namespace page {
 \033[36mrename [path] [name]\033[0m    rename directory or file\n\
 \033[36mcopy / cp [src] [dest]\033[0m  copy file to directory (dest optional)\n\
 \033[36mmove / mv [src] [dest]\033[0m  move file to directory (dest optional)\n\
+\033[36mdu [path]\033[0m               show serialized file size (path optional)\n\
 \033[36mlock [path]\033[0m             lock file or directory (sudo only)\n\
 \033[36munlock [path]\033[0m           unlock file or directory (sudo only)\n\
 \n\

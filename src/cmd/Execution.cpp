@@ -2,8 +2,10 @@
 
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <ctime>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -508,6 +510,24 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
         std::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << "\n";
+    } else if (param.cmd == "du") {
+        const Node* node;
+        if (param.args.empty()) {
+            node = FS::current;
+        } else {
+            node = GetAbsolute(param.args[0]);
+
+            if (!node) {
+                alert(msg::invalid_path, stx::red);
+                return 0;
+            }
+        }
+
+        size_t bytes = GetFileSize(node);
+        double kB = static_cast<double>(bytes) / 1024.0;
+        double MB = kB / 1024.0;
+        double GB = MB / 1024.0;
+        std::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << "\n";
     } else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
 

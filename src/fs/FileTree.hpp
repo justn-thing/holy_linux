@@ -22,3 +22,4 @@ char RemoveNode(const Node* node, bool recursive = false);
 short RemoveChild(const Node* parent, const std::string& name, const std::string& type, bool recursive = false);
 void DisplayDir(const Node* parent);
 void LockNode(Node* node, bool lock);
+size_t GetFileSize(const Node* node);
