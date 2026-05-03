@@ -513,6 +513,23 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         return 99;
     } else if (!param.cmd.empty()) {
+        Node* bin = GetChild(FS::root, "bin", "dir");
+        if (!bin)
+            bin = NewChild(FS::root, "bin", "dir");
+
+        std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
+
+        if (GetChild(bin, param.cmd, "exe")) {
+            CommandParams line = ParseCommandLine(exec + param.cmd + ".exe");
+            return Execute(line, startupConfigPhase);
+        } if (GetChild(bin, param.cmd, "cmd")) {
+            CommandParams line = ParseCommandLine(exec + param.cmd + ".cmd");
+            return Execute(line, startupConfigPhase);
+        } if (GetChild(bin, param.cmd, "py")) {
+            CommandParams line = ParseCommandLine(exec + param.cmd + ".py");
+            return Execute(line, startupConfigPhase);
+        }
+
         alert(msg::unknown_cmd, stx::yellow);
     }
     return 0;
