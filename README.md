@@ -5,7 +5,7 @@ Small C++23 simulated OS shell that keeps a virtual filesystem in memory and per
 ## Features
 
 - Boot flow with startup script execution (`/boot/startupConfig.cmd` inside the virtual filesystem).
-- Multi-user login with per-user passwords stored in `/etc/login.txt` (virtual filesystem file).
+- Multi-user login (each directory inside `/home` counts as a user) with per-user passwords stored in `/etc/login.txt` (virtual filesystem file).
 - Root escalation via `sudo` (prompts for root password when needed).
 - In-shell filesystem operations (`cd`, `mkdir`, `touch`, `rm`, `rename`, `copy`, `move`, locking).
 - Built-in editor (`Holy Vim`) for `.txt`, `.cmd`, `.py`, and `.cpp` files.
@@ -26,8 +26,8 @@ Per `CMakeLists.txt`, runtime output is placed in `build/`.
 
 - C++23 toolchain (project is built for MinGW/g++ workflow)
 - CMake
-- `g++` on `PATH` (required by in-app `compile` / `comp`)
-- `py` (Windows) or `python3` (Linux) on `PATH` (used by in-app `execute` for `.py`)
+- `g++` on PATH (used by in-app `compile` for `.cpp`)
+- `py` (Windows) or `python3` (Linux) on PATH (used by in-app `execute` for `.py`)
 
 ## Run
 
@@ -43,7 +43,6 @@ Runtime `rom/` and `ram/` directories are created next to the executable.
 
 - `rom/` persistent virtual filesystem image (`fileSystem.txt`)
 - `ram/` temp files used by `execute`/`compile`
-- `src/` source code
 
 ## Quick Demo
 
@@ -67,7 +66,7 @@ poweroff
 Navigation
 - `cd [arg]` change directory
 - `dir` / `ls [arg]` list directory contents
-- `pwd` print current path
+- `pwd` print working directory
 
 Filesystem
 - `mkdir [name]` create directory
@@ -90,7 +89,7 @@ Execution
 - `compile` / `comp [name.cpp]` compile to `.exe` (requires `g++`)
 
 Mount
-- `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/root/mnt` (sudo only)
+- `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` (sudo only)
 
 System
 - `password` / `passwd [new] [confirm]` change current user password
