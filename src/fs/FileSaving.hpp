@@ -1,9 +1,8 @@
 #pragma once
 
-#include <istream>
 #include <string>
 
-#include "NodeStruct.hpp"
+#include "../fs/NodeStruct.hpp"
 
 std::string SerializeNode(const Node* node);
 std::string SerializeDir(const Node* dir);

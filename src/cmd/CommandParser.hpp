@@ -2,6 +2,6 @@
 
 #include <string>
 
-#include "CommandParams.hpp"
+#include "../cmd/CommandParams.hpp"
 
 CommandParams parseCommandLine(const std::string& input);

@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "../apps/HolyVim.hpp"
+#include "../cmd/CommandParser.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
@@ -18,7 +19,6 @@
 #include "../ui/Pages.hpp"
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
-#include "CommandParser.hpp"
 
 int Execute(CommandParams& param, const bool startupConfigPhase) {
     const std::string arg = param.args.empty() ? "" : param.args[0];

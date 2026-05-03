@@ -1,10 +1,10 @@
 #include "Syntax.hpp"
 
+#include <iostream>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
-
-#include <iostream>
 
 namespace stx {
     const std::string_view reset = "\033[0m";

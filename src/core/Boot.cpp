@@ -14,6 +14,7 @@
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
+#include "../core/Run.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
@@ -22,7 +23,6 @@
 #include "../ui/Pages.hpp"
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
-#include "../core/Run.hpp"
 
 void BootFileSystem() {
     alert(msg::begin_load_fs, stx::green);

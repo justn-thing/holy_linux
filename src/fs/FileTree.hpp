@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "NodeStruct.hpp"
+#include "../fs/NodeStruct.hpp"
 
 namespace FS {
     extern std::unique_ptr<Node> unique_ptr_root;
