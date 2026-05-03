@@ -22,7 +22,7 @@ int Run() {
         std::string input;
         std::getline(std::cin, input);
 
-        if (CommandParams params = parseCommandLine(input);
+        if (CommandParams params = ParseCommandLine(input);
             Execute(params) == 99)
             return 0;
 

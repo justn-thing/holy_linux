@@ -4,4 +4,4 @@
 
 #include "../cmd/CommandParams.hpp"
 
-CommandParams parseCommandLine(const std::string& input);
+CommandParams ParseCommandLine(const std::string& input);

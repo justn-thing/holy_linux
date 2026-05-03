@@ -6,7 +6,7 @@
 #include "../session/Login.hpp"
 #include "../session/SessionData.hpp"
 
-CommandParams parseCommandLine(const std::string& input) {
+CommandParams ParseCommandLine(const std::string& input) {
     CommandParams result;
     result.raw = input;
 

@@ -36,7 +36,7 @@ int BootStartupConfig() {
 
     if (const Node* startupConfig = GetAbsolute("/boot/startupConfig.cmd")) {
         for (const std::string& line : split(startupConfig->value, '\n')) {
-            if (CommandParams params = parseCommandLine(line);
+            if (CommandParams params = ParseCommandLine(line);
                 Execute(params, true) == 99)
                 return 99;
         }
