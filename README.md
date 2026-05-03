@@ -28,15 +28,16 @@ Per `CMakeLists.txt`, runtime output is placed in `build/`.
 - CMake
 - `g++` on `PATH` (required by in-app `compile` / `comp`)
 - `py` (Windows) or `python3` (Linux) on `PATH` (used by in-app `execute` for `.py`)
-- Run from repository root so `rom/` and `ram/` paths resolve
 
 ## Run
 
-Run from project root so relative `rom/` and `ram/` paths resolve correctly:
+Run the built executable:
 
 ```sh
 build/holy_linux.exe
 ```
+
+Runtime `rom/` and `ram/` directories are created next to the executable.
 
 ## Runtime Directories
 

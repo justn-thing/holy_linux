@@ -28,13 +28,13 @@ namespace msg {
     const std::string_view fail_load_fetch = "Failed to load fetch text file.\n\n";
     const std::string_view fail_load_help = "Failed to load help page text file.\n\n";
     const std::string_view fail_load_holyvim = "Failed to load Holy Vim help page text file.\n\n";
-    const std::string_view fail_load_startupcfg = "Failed to load startup config file.\n\n";
+    const std::string_view startupcfg_not_exist = "Startup config file does not exist, creating it...\n\n";
     const std::string_view fail_save_startupcfg = "Failed to save startup config file.\n\n";
     const std::string_view fail_load_filesystem = "Failed to load filesystem file.\n\n";
     const std::string_view fail_save_filesystem = "Failed to save filesystem file.\n\n";
     const std::string_view fail_mount = "Failed to mount file.\n";
     const std::string_view fail_compile = "Failed to compile file.\n";
-    const std::string_view mnt_doesnt_exist = "/root/mnt does not exist.\n";
+    const std::string_view mnt_doesnt_exist = "/root/mnt directory does not exist, creating it...\n";
     const std::string_view unknown_cmd = "Unknown command.\n";
     const std::string_view fail_confirm = "Verification failed.\n";
     const std::string_view cant_remove_root = "Cannot remove root.\n";

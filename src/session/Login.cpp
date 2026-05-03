@@ -16,12 +16,13 @@
 #include "SessionData.hpp"
 
 bool ChangePassword(const std::string& username, const std::string& password) {
-    const Node* etc = GetChild(FS::root, "etc", "dir");
+    Node* etc = GetChild(FS::root, "etc", "dir");
     if (!etc)
-        return false;
+        etc = NewChild(FS::root, "etc", "dir");
+
     Node* loginPass = GetChild(etc, "login", "txt");
     if (!loginPass)
-        return false;
+        loginPass = NewChild(etc, "login", "txt");
 
     const std::vector<std::string> users = split(loginPass->value, '\n');
     std::string output;
@@ -60,12 +61,18 @@ bool ChangePassword(const std::string& username, const std::string& password) {
 PassReturn GetCorrectPass(const std::string& userName) {
     PassReturn passReturn;
 
-    const Node* etc = GetChild(FS::root, "etc", "dir");
-    if (!etc)
+    Node* etc = GetChild(FS::root, "etc", "dir");
+    if (!etc) {
+        NewChild(FS::root, "etc", "dir");
         return passReturn;
+    }
+
     const Node* loginPass = GetChild(etc, "login", "txt");
-    if (!loginPass)
+    if (!loginPass) {
+        NewChild(etc, "login", "txt");
         return passReturn;
+    }
+
     for (const std::string& user : split(loginPass->value, '\n')) {
         if (const size_t index = user.find(' ');
             index != std::string::npos && index + 1 < user.size() && user.compare(0, index, userName) == 0) {
@@ -116,8 +123,10 @@ bool LoginRoot() {
 
 int Login() {
     const Node* home = GetChild(FS::root, "home", "dir");
-    if (!home)
+    if (!home) {
+        NewChild(FS::root, "home", "dir");
         return 1;
+    }
 
     int dirAmount = 0;
     for (const std::unique_ptr<Node>& child : home->children)

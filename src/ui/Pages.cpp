@@ -2,7 +2,7 @@
 
 namespace page {
     const std::string_view fetch =
-"\033[33mHoly Linux\033[36m 2.0\n\
+"\033[33mHoly Linux\033[36m 2.1\n\
 \033[90m==============================\n\
 \033[0mDeveloped by me, myself and I.\n\n";
 

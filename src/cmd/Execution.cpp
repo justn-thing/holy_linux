@@ -270,31 +270,31 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
                 Execute(params, true);
             }
         } else if (target->type == "py") {
-            std::ofstream fileout("ram/pythonExecutable.txt");
+            std::ofstream fileout(SData::RAM::py);
             fileout << target->value;
             fileout.close();
 
 #ifdef _WIN32
-            system("py ram/pythonExecutable.txt");
+            const std::wstring runCmd = L"py \"" + SData::RAM::py.wstring() + L"\"";
+            _wsystem(runCmd.c_str());
 #else
-            system("python3 ram/pythonExecutable.txt");
+            const std::string runCmd = "python3 \"" + SData::RAM::py.string() + "\"";
+            system(runCmd.c_str());
 #endif
 
-            std::ofstream fileErase("ram/pythonExecutable.txt");
+            std::ofstream fileErase(SData::RAM::py);
             fileErase.close();
         } else if (target->type == "exe") {
+            std::ofstream fileout(SData::RAM::exe, std::ios::binary);
+            fileout << target->value;
+            fileout.close();
 #ifdef _WIN32
-            std::ofstream fileout("ram/winExecutable.exe", std::ios::binary);
-            fileout << target->value;
-            fileout.close();
-
-            system("cd ram && winExecutable.exe");
+            const std::wstring runCmd = L"\"" + SData::RAM::exe.wstring() + L"\"";
+            _wsystem(runCmd.c_str());
 #else
-            std::ofstream fileout("ram/linuxExecutable", std::ios::binary);
-            fileout << target->value;
-            fileout.close();
-
-            system("chmod +x ram/linuxExecutable && ram/linuxExecutable");
+            const std::string runCmd = "chmod +x \"" + SData::RAM::exe.string() + "\" && \"" +
+                                       SData::RAM::exe.string() + "\"";
+            system(runCmd.c_str());
 #endif
         } else
             alert(msg::invalid_file_type, stx::yellow);
@@ -315,24 +315,32 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         if (target->type == "cpp") {
-            std::ofstream fileout("ram/cppCompileable.cpp");
+            std::ofstream fileout(SData::RAM::cpp);
             fileout << target->value;
             fileout.close();
 
 #ifdef _WIN32
-            constexpr auto compiledPath = "ram/cppCompiled.exe";
-            constexpr auto compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled.exe";
+            const std::filesystem::path compiledPath = SData::RAM::cpp.parent_path() / "cppCompiled.exe";
+            const std::wstring compileCmd = L"g++ \"" + SData::RAM::cpp.wstring() + L"\" -o \"" +
+                                            compiledPath.wstring() + L"\"";
 #else
-            constexpr auto compiledPath = "ram/cppCompiled";
-            constexpr auto compileCmd = "g++ ram/cppCompileable.cpp -o ram/cppCompiled";
+            const std::filesystem::path compiledPath = SData::RAM::cpp.parent_path() / "cppCompiled";
+            const std::string compileCmd = "g++ \"" + SData::RAM::cpp.string() + "\" -o \"" +
+                                           compiledPath.string() + "\"";
 #endif
 
-            if (system(compileCmd) != 0) {
+            if (
+#ifdef _WIN32
+                _wsystem(compileCmd.c_str())
+#else
+                system(compileCmd.c_str())
+#endif
+                != 0) {
                 alert(msg::fail_compile, stx::red);
                 return 0;
             }
 
-            std::ofstream fileErase("ram/cppCompileable.cpp");
+            std::ofstream fileErase(SData::RAM::cpp);
             fileErase.close();
 
             std::ifstream filein(compiledPath, std::ios::binary);
@@ -379,8 +387,8 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         Node* mount = GetChild(FS::root, "mnt", "dir");
         if (!mount) {
-            alert(msg::mnt_doesnt_exist, stx::red);
-            return 0;
+            alert(msg::mnt_doesnt_exist, stx::yellow);
+            mount = NewChild(FS::root, "mnt", "dir", true);
         }
 
         bool allowed = false;

@@ -1,5 +1,6 @@
 #include "FileSaving.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <limits>
 #include <memory>
@@ -7,7 +8,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include "FileTree.hpp"
+#include "../fs/FileTree.hpp"
+#include "../session/SessionData.hpp"
 
 std::string SerializeDir(const Node* dir) {
     std::string value;
@@ -40,7 +42,7 @@ std::string SerializeNode(const Node* node) {
 }
 
 bool SaveFileSystem() {
-    std::ofstream out("rom/fileSystem.txt", std::ios::binary);
+    std::ofstream out(SData::ROM::fileSystem, std::ios::binary);
     if (!out.is_open()) return false;
 
     for (const std::unique_ptr<Node>& child : FS::root->children) {
@@ -115,7 +117,7 @@ bool LoadNode(Node* parent, std::istream& in) {
 }
 
 bool LoadFileSystem() {
-    std::ifstream fs("rom/fileSystem.txt", std::ios::binary);
+    std::ifstream fs(SData::ROM::fileSystem, std::ios::binary);
     if (!fs.is_open()) return false;
 
     while (LoadNode(FS::root, fs)) {}

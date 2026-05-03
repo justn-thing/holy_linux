@@ -27,7 +27,7 @@ namespace msg {
     extern const std::string_view fail_load_fetch;
     extern const std::string_view fail_load_help;
     extern const std::string_view fail_load_holyvim;
-    extern const std::string_view fail_load_startupcfg;
+    extern const std::string_view startupcfg_not_exist;
     extern const std::string_view fail_save_startupcfg;
     extern const std::string_view fail_load_filesystem;
     extern const std::string_view fail_save_filesystem;

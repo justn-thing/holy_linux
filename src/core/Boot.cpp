@@ -1,7 +1,16 @@
 #include "Boot.hpp"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
@@ -13,7 +22,7 @@
 #include "../ui/Pages.hpp"
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
-#include "Run.hpp"
+#include "../core/Run.hpp"
 
 void BootFileSystem() {
     alert(msg::begin_load_fs, stx::green);
@@ -32,14 +41,79 @@ int BootStartupConfig() {
                 return 99;
         }
     } else {
-        alert(msg::fail_load_startupcfg, stx::red);
+        alert(msg::startupcfg_not_exist, stx::yellow);
+        Node* boot;
+        if (!(boot = GetAbsolute("boot", FS::root)))
+            boot = NewChild(FS::root, "boot", "dir");
+        if (!GetAbsolute("boot/startupConfig.cmd", FS::root))
+            NewChild(boot, "startupConfig", "cmd");
     }
 
     return 0;
 }
 
-int Boot() {
+static void CreateFile(const std::filesystem::path& path) {
+    if (!std::filesystem::exists(path)) {
+        std::ofstream fileout(path);
+        fileout.close();
+    }
+}
+
+#ifdef _WIN32
+static std::filesystem::path GetExecutablePath(char* args[]) {
+    std::wstring buffer(MAX_PATH, L'\0');
+
+    while (true) {
+        const DWORD size = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if (size == 0)
+            return std::filesystem::absolute(args[0]);
+
+        if (size < buffer.size()) {
+            buffer.resize(size);
+            return std::filesystem::path{buffer};
+        }
+
+        buffer.resize(buffer.size() * 2);
+    }
+}
+#else
+static std::filesystem::path GetExecutablePath(char* args[]) {
+    return std::filesystem::absolute(args[0]);
+}
+#endif
+
+void BootFileDependencies(char* args[]) {
+    using namespace std::filesystem;
+
+    const path exePath = GetExecutablePath(args);
+    const path exeDir = exePath.parent_path();
+
+    const path ramDir = exeDir / "ram";
+    SData::RAM::cpp = ramDir / "cppCompileable.cpp";
+    SData::RAM::py = ramDir / "pythonExecutable.txt";
+#ifdef _WIN32
+    SData::RAM::exe = ramDir / "winExecutable.exe";
+#else
+    SData::RAM::exe = ramDir / "linuxExecutable";
+#endif
+
+    const path romDir = exeDir / "rom";
+    SData::ROM::fileSystem = romDir / "fileSystem.txt";
+
+    create_directory(ramDir);
+    create_directory(romDir);
+
+    CreateFile(SData::RAM::cpp);
+    CreateFile(SData::RAM::py);
+    CreateFile(SData::RAM::exe);
+
+    CreateFile(SData::ROM::fileSystem);
+}
+
+int Boot(char* args[]) {
     alert(msg::begin_boot, stx::green);
+
+    BootFileDependencies(args);
 
     BootFileSystem();
 
