@@ -13,7 +13,7 @@
 #include "../ui/Messages.hpp"
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
-#include "SessionData.hpp"
+#include "../session/SessionData.hpp"
 
 bool ChangePassword(const std::string& username, const std::string& password) {
     Node* etc = GetChild(FS::root, "etc", "dir");

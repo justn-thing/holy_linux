@@ -407,12 +407,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             alert(msg::file_alr_exists, stx::yellow);
     } else if (param.cmd == "copy" || param.cmd == "cp" ||
                param.cmd == "move" || param.cmd == "mv") {
-        std::string targetStr;
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
+        std::string targetStr;
         if (param.args.size() < 2) {
             targetStr = GetPath(FS::current);
         } else

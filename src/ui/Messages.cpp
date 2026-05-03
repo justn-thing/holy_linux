@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "Syntax.hpp"
+#include "../ui/Syntax.hpp"
 
 namespace msg {
     const std::string_view not_sudo = "Insufficient permission.\n";
