@@ -77,7 +77,7 @@ bool LoadNode(Node* parent, std::istream& in) {
 
     std::string nameType;
     size_t payloadSize;
-    unsigned char sudoFlag;
+    int sudoFlag;
     size_t miscSize;
 
     {
@@ -94,7 +94,10 @@ bool LoadNode(Node* parent, std::istream& in) {
     const std::string type = nameType.substr(dot + 1);
 
     Metadata md;
-    md.sudo = (sudoFlag != 0);
+    if (sudoFlag != 0 && sudoFlag != 1)
+        throw std::runtime_error("Loading filesystem failed; corrupt sudo flag");
+
+    md.sudo = (sudoFlag == 1);
 
     md.misc.resize(miscSize);
     in.read(md.misc.data(), static_cast<std::streamsize>(miscSize));
