@@ -26,26 +26,21 @@ namespace stx {
     const std::string_view bg_cyan = "\033[46m";
     const std::string_view bg_white = "\033[47m";
     const std::string_view bg_gray = "\033[100m";
-    const std::string_view move_to_top = "\033[2J\033[H";
-    const std::string_view clear = "\033[2J\033[H\033[3J";
+    const std::string_view move_to_top = "\033[H\033[2J";
+    const std::string_view clear = "\033[H\033[2J\033[3J";
 
     void ClearConsole() {
 #ifdef _WIN32
-        auto* const handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        void* const handle = GetStdHandle(STD_OUTPUT_HANDLE);
         if (handle == INVALID_HANDLE_VALUE) return;
 
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        if (!GetConsoleScreenBufferInfo(handle, &csbi)) return;
-
-        const DWORD size = static_cast<DWORD>(csbi.dwSize.X) * static_cast<DWORD>(csbi.dwSize.Y);
-        DWORD written = 0;
-        constexpr COORD home = {.X=0, .Y=0};
-
-        FillConsoleOutputCharacter(handle, ' ', size, home, &written);
-        FillConsoleOutputAttribute(handle, csbi.wAttributes, size, home, &written);
-        SetConsoleCursorPosition(handle, home);
+        DWORD mode = 0;
+        if (GetConsoleMode(handle, &mode)) {
+            SetConsoleMode(handle, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+            std::cout << clear << std::flush;
+        }
 #else
-        std::cout << clear;
+        std::cout << clear << std::flush;
 #endif
     }
 }
