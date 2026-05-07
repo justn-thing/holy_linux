@@ -1,12 +1,39 @@
 #include "Pages.hpp"
 
-namespace page {
-    const std::string_view fetch =
-"\033[33mHoly Linux\033[36m 2.3c\n\
-\033[90m==============================\n\
-\033[0mDeveloped by me, myself and I.\n\n";
+#include <array>
 
-    const std::string_view help =
+#include "../Version.hpp"
+
+namespace {
+    template <std::size_t PrefixSize, std::size_t SuffixSize>
+    constexpr auto MakeFetchText(const char (&prefix)[PrefixSize], const char (&suffix)[SuffixSize]) {
+        std::array<char, PrefixSize + version::num.size() + SuffixSize - 2 + 1> text{};
+        std::size_t index = 0;
+
+        for (std::size_t i = 0; i < PrefixSize - 1; ++i) {
+            text[index++] = prefix[i];
+        }
+        for (const char ch : version::num) {
+            text[index++] = ch;
+        }
+        for (std::size_t i = 0; i < SuffixSize - 1; ++i) {
+            text[index++] = suffix[i];
+        }
+        text[index] = '\0';
+
+        return text;
+    }
+
+    constexpr auto fetchText = MakeFetchText(
+"\033[33mHoly Linux\033[36m ","\n\
+\033[90m========================\n\
+\033[0mDeveloped by justn-thing\n\n");
+}
+
+namespace page {
+    constexpr std::string_view fetch(fetchText.data(), fetchText.size() - 1);
+
+    constexpr std::string_view help =
 "\033[36mHoly Linux Command Help\033[0m\n\
 \033[90mTip:\033[0m use \033[33msudo [cmd]\033[0m for admin-only commands\n\
 \n\
@@ -53,12 +80,12 @@ namespace page {
 \033[36mfetch\033[0m                   display current release\n\
 \033[36mpoweroff [-d]\033[0m           shutdown (-d discards changes)\n\n";
 
-    const std::string_view holyVim =
+    constexpr std::string_view holyVim =
 "Holy Vim 1.1\n\
 \n\
 Type ':cmds' for Commands\n\n";
 
-    const std::string_view holyVimHelp =
+    constexpr std::string_view holyVimHelp =
 "Holy Vim Commands\n\
 \n\
 :goto #   | :gt #    jump to line #\n\

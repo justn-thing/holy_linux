@@ -7,27 +7,27 @@
 #endif
 
 namespace stx {
-    const std::string_view reset = "\033[0m";
-    const std::string_view black = "\033[30m";
-    const std::string_view red = "\033[31m";
-    const std::string_view green = "\033[32m";
-    const std::string_view yellow = "\033[33m";
-    const std::string_view blue = "\033[34m";
-    const std::string_view magenta = "\033[35m";
-    const std::string_view cyan = "\033[36m";
-    const std::string_view white = "\033[37m";
-    const std::string_view gray = "\033[90m";
-    const std::string_view bg_black = "\033[40m";
-    const std::string_view bg_red = "\033[41m";
-    const std::string_view bg_green = "\033[42m";
-    const std::string_view bg_yellow = "\033[43m";
-    const std::string_view bg_blue = "\033[44m";
-    const std::string_view bg_magenta = "\033[45m";
-    const std::string_view bg_cyan = "\033[46m";
-    const std::string_view bg_white = "\033[47m";
-    const std::string_view bg_gray = "\033[100m";
-    const std::string_view move_to_top = "\033[H\033[2J";
-    const std::string_view clear = "\033[H\033[2J\033[3J";
+    constexpr std::string_view reset = "\033[0m";
+    constexpr std::string_view black = "\033[30m";
+    constexpr std::string_view red = "\033[31m";
+    constexpr std::string_view green = "\033[32m";
+    constexpr std::string_view yellow = "\033[33m";
+    constexpr std::string_view blue = "\033[34m";
+    constexpr std::string_view magenta = "\033[35m";
+    constexpr std::string_view cyan = "\033[36m";
+    constexpr std::string_view white = "\033[37m";
+    constexpr std::string_view gray = "\033[90m";
+    constexpr std::string_view bg_black = "\033[40m";
+    constexpr std::string_view bg_red = "\033[41m";
+    constexpr std::string_view bg_green = "\033[42m";
+    constexpr std::string_view bg_yellow = "\033[43m";
+    constexpr std::string_view bg_blue = "\033[44m";
+    constexpr std::string_view bg_magenta = "\033[45m";
+    constexpr std::string_view bg_cyan = "\033[46m";
+    constexpr std::string_view bg_white = "\033[47m";
+    constexpr std::string_view bg_gray = "\033[100m";
+    constexpr std::string_view move_to_top = "\033[H\033[2J";
+    constexpr std::string_view clear = "\033[H\033[2J\033[3J";
 
     void ClearConsole() {
 #ifdef _WIN32
