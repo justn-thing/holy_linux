@@ -27,3 +27,5 @@ void CopyNode(const Node* from, Node* to, bool sudo);
 bool ContainsLockedNode(const Node* node);
 void MoveNode(const Node* from, Node* to, bool sudo);
 void PrintTree(const Node* node, int indent = 0);
+void FindNodes(Node* ancestor, const std::string& name, const std::string& type, std::vector<Node*>& result,
+                             bool anyType = false);

@@ -554,6 +554,38 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             PrintTree(target);
         else
             alert(msg::invalid_path, stx::red);
+    } else if (param.cmd == "find") {
+        if (param.args.empty()) {
+            alert(msg::arg_missing, stx::yellow);
+            return 0;
+        }
+
+        Node* ancestor;
+        if (param.args.size() == 1) {
+            ancestor = FS::current;
+        } else {
+            ancestor = GetAbsolute(param.args[1]);
+            if (!ancestor) {
+                alert(msg::invalid_path, stx::yellow);
+                return 0;
+            }
+        }
+
+        std::vector<Node*> result;
+        if (const size_t dot = arg.rfind('.');
+            dot == std::string::npos || dot == arg.size() - 1)
+            FindNodes(ancestor, arg.substr(0, dot), "", result, true);
+        else
+            FindNodes(ancestor, arg.substr(0, dot), arg.substr(dot + 1), result);
+
+        if (result.empty()) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+
+        for (const Node* node : result) {
+            std::cout << GetPath(node) << "\n";
+        }
     } else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
 

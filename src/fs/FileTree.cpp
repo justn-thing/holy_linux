@@ -263,3 +263,13 @@ void PrintTree(const Node* node, const int indent) {
         PrintTree(child.get(), indent + 2);
     }
 }
+
+void FindNodes(Node* ancestor, const std::string& name, const std::string& type, std::vector<Node*>& result,
+                             const bool anyType) {
+    if (ancestor->name == name && (anyType || ancestor->type == type))
+        result.emplace_back(ancestor);
+
+    for (const std::unique_ptr<Node>& child : ancestor->children) {
+        FindNodes(child.get(), name, type, result, anyType);
+    }
+}
