@@ -30,17 +30,16 @@ std::string GetPath(const Node* current) {
     std::string path;
     const Node* temp = current;
 
-    while (temp) {
+    while (temp && temp != FS::root) {
         path.insert(0, "/" + temp->name);
         temp = temp->parent;
     }
 
-    return path;
+    return path.empty() ? "/" : path;
 }
 
 std::string GetCosmeticPath(const Node* current) {
-    std::string path = GetPath(current).substr(5);
-    path = path.empty() ? "/" : path;
+    std::string path = GetPath(current);
 
     if (path.starts_with("/home/" + SData::username))
         path = "~" + path.substr(6 + SData::username.length());
@@ -244,4 +243,23 @@ void MoveNode(const Node* from, Node* to, const bool sudo) {
 
     movedNode->parent = to;
     to->children.emplace_back(std::move(movedNode));
+}
+
+void PrintTree(const Node* node, const int indent) {
+    for (int i = 0; i < indent; ++i) {
+        std::cout << ' ';
+    }
+
+    if (indent == 0) {
+        std::cout << GetPath(node) << "\n";
+    } else {
+        std::cout << node->name;
+        if (node->type != "dir")
+            std::cout << "." << node->type;
+        std::cout << "\n";
+    }
+
+    for (const std::unique_ptr<Node>& child : node->children) {
+        PrintTree(child.get(), indent + 2);
+    }
 }

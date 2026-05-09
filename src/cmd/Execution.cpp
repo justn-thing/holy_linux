@@ -544,6 +544,16 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         double MB = kB / 1024.0;
         double GB = MB / 1024.0;
         std::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << "\n";
+    } else if (param.cmd == "tree") {
+        if (param.args.empty()) {
+            PrintTree(FS::current);
+            return 0;
+        }
+
+        if (Node* target = GetAbsolute(arg))
+            PrintTree(target);
+        else
+            alert(msg::invalid_path, stx::red);
     } else if (param.cmd == "poweroff") {
         alert(msg::begin_poweroff, stx::green);
 

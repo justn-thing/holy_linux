@@ -26,3 +26,4 @@ size_t GetFileSize(const Node* node);
 void CopyNode(const Node* from, Node* to, bool sudo);
 bool ContainsLockedNode(const Node* node);
 void MoveNode(const Node* from, Node* to, bool sudo);
+void PrintTree(const Node* node, int indent = 0);
