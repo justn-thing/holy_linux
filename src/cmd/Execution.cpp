@@ -409,50 +409,66 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             mountedFile->value = fileValue.str();
         else
             alert(msg::file_alr_exists, stx::yellow);
-    } else if (param.cmd == "copy" || param.cmd == "cp" ||
-               param.cmd == "move" || param.cmd == "mv") {
-        if (param.args.empty()) {
+    } else if (param.cmd == "copy" || param.cmd == "cp") {
+        if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        std::string targetStr;
+        const Node* fromNode = GetAbsolute(param.args[0]);
+        if (!fromNode) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+
+        Node* toNode = GetAbsolute(param.args[1]);
+        if (!toNode) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+        if (toNode->type != "dir") {
+            alert(msg::copy_into_file, stx::yellow);
+            return 0;
+        }
+
+        if (IsAncestor(fromNode, toNode)) {
+            alert(msg::copy_into_descendant, stx::yellow);
+            return 0;
+        }
+
+        CopyNode(fromNode, toNode, param.sudo);
+    } else if (param.cmd == "move" || param.cmd == "mv") {
         if (param.args.size() < 2) {
-            targetStr = GetPath(FS::current);
-        } else
-            targetStr = param.args[1];
-
-        const Node* fromNode = GetAbsolute(arg);
-        Node* toNode = GetAbsolute(targetStr);
-        if (!fromNode || !toNode) {
-            alert(msg::file_not_found, stx::red);
+            alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        if (fromNode->parent == toNode)
-            return 0;
-
-        if (fromNode->type == "dir" || toNode->type != "dir") {
-            alert(msg::invalid_file_type, stx::yellow);
+        const Node* fromNode = GetAbsolute(param.args[0]);
+        if (!fromNode) {
+            alert(msg::file_not_found, stx::yellow);
             return 0;
         }
-
-        if ((fromNode->metadata.sudo || toNode->metadata.sudo) && !param.sudo) {
-            alert(msg::not_sudo, stx::yellow);
+        if (fromNode == FS::root) {
+            alert(msg::cant_move_root, stx::yellow);
             return 0;
         }
 
-        if (Node* toChild = NewChild(toNode, fromNode->name, fromNode->type, fromNode->metadata.sudo,
-                                     fromNode->metadata.misc))
-            toChild->value = fromNode->value;
-        else {
-            alert(msg::file_alr_exists, stx::yellow);
+        Node* toNode = GetAbsolute(param.args[1]);
+        if (!toNode) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+        if (toNode->type != "dir") {
+            alert(msg::move_into_file, stx::yellow);
             return 0;
         }
 
-        if (param.cmd == "move" || param.cmd == "mv") {
-            RemoveNode(fromNode);
+        if (IsAncestor(fromNode, toNode)) {
+            alert(msg::move_into_descendant, stx::yellow);
+            return 0;
         }
+
+        MoveNode(fromNode, toNode, param.sudo);
     } else if (param.cmd == "lock" || param.cmd == "unlock") {
         if (arg.empty()) {
             alert(msg::arg_missing, stx::yellow);

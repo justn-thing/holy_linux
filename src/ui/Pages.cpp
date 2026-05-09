@@ -48,8 +48,8 @@ namespace page {
 \033[36mmkfile / touch [name]\033[0m   create a file (default: .txt)\n\
 \033[36mrmfile / rm [name]\033[0m      remove a file\n\
 \033[36mrename [path] [name]\033[0m    rename directory or file\n\
-\033[36mcopy / cp [src] [dest]\033[0m  copy file to directory (dest optional)\n\
-\033[36mmove / mv [src] [dest]\033[0m  move file to directory (dest optional)\n\
+\033[36mcopy / cp [src] [dest]\033[0m  copy file to directory\n\
+\033[36mmove / mv [src] [dest]\033[0m  move file to directory\n\
 \033[36mdu [path]\033[0m               show serialized file size (path optional)\n\
 \033[36mlock [path]\033[0m             lock file or directory (sudo only)\n\
 \033[36munlock [path]\033[0m           unlock file or directory (sudo only)\n\

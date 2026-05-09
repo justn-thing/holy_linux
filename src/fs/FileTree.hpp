@@ -23,3 +23,6 @@ short RemoveChild(const Node* parent, const std::string& name, const std::string
 void DisplayDir(const Node* parent);
 void LockNode(Node* node, bool lock);
 size_t GetFileSize(const Node* node);
+void CopyNode(const Node* from, Node* to, bool sudo);
+bool ContainsLockedNode(const Node* node);
+void MoveNode(const Node* from, Node* to, bool sudo);

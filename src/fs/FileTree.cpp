@@ -1,5 +1,6 @@
 #include "FileTree.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -195,4 +196,52 @@ size_t GetFileSize(const Node* node) {
                               + 1; // "\n"
 
     return headerSize + miscSize + payloadSize;
+}
+
+void CopyNode(const Node* from, Node* to, const bool sudo) {
+    if ((from->metadata.sudo || to->metadata.sudo) && !sudo) {
+        alert(msg::not_sudo, stx::yellow);
+        return;
+    }
+
+    Node* newNode = NewChild(to, from->name, from->type, from->metadata.sudo, from->metadata.misc);
+    if (newNode == nullptr) {
+        alert(msg::file_alr_exists, stx::red);
+        return;
+    }
+    newNode->value = from->value;
+
+    for (const std::unique_ptr<Node>& child : from->children) {
+        CopyNode(child.get(), newNode, sudo);
+    }
+}
+
+bool ContainsLockedNode(const Node* node) {
+    return node->metadata.sudo || std::ranges::any_of(node->children,  []
+        (const std::unique_ptr<Node>& child) {
+        return ContainsLockedNode(child.get());
+    });
+}
+
+void MoveNode(const Node* from, Node* to, const bool sudo) {
+    if ((ContainsLockedNode(from) || to->metadata.sudo) && !sudo) {
+        alert(msg::not_sudo, stx::yellow);
+        return;
+    }
+
+    if (GetChild(to, from->name, from->type)) {
+        alert(msg::file_alr_exists, stx::yellow);
+        return;
+    }
+
+    const auto iter = std::ranges::find_if(from->parent->children, [from]
+        (const std::unique_ptr<Node>& child) {
+        return child.get() == from;
+    });
+
+    std::unique_ptr<Node> movedNode = std::move(*iter);
+    from->parent->children.erase(iter);
+
+    movedNode->parent = to;
+    to->children.emplace_back(std::move(movedNode));
 }
