@@ -77,6 +77,8 @@ Filesystem
 - `copy` / `cp [src] [dest]` copy file to directory
 - `move` / `mv [src] [dest]` move file to directory
 - `du [path]` show serialized file size (`path` optional, defaults to current directory)
+- `tree [path]` print a recursive tree view (`path` optional, defaults to current directory)
+- `find [name] [path]` recursively find matching files/directories (`path` optional, defaults to current directory)
 - `lock [path]` lock node (sudo only)
 - `unlock [path]` unlock node (sudo only)
 

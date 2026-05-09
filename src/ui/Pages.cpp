@@ -51,6 +51,8 @@ namespace page {
 \033[36mcopy / cp [src] [dest]\033[0m  copy file to directory\n\
 \033[36mmove / mv [src] [dest]\033[0m  move file to directory\n\
 \033[36mdu [path]\033[0m               show serialized file size (path optional)\n\
+\033[36mtree [path]\033[0m             print recursive tree view (path optional)\n\
+\033[36mfind [name] [path]\033[0m      recursively find files/directories (path optional)\n\
 \033[36mlock [path]\033[0m             lock file or directory (sudo only)\n\
 \033[36munlock [path]\033[0m           unlock file or directory (sudo only)\n\
 \n\
