@@ -36,7 +36,7 @@ size_t displayContent(const std::vector<std::string>& output) {
 }
 
 void HolyVim(Node* target, const std::string& cmd) {
-    std::cout << page::holyVim;
+    std::cout << page::holyVim << "\n";
 
     std::vector<std::string> output;
     auto vimIndex = 1uz;
@@ -88,7 +88,7 @@ void HolyVim(Node* target, const std::string& cmd) {
             continue;
         }
         if (cmds[0] == ":commands" || cmds[0] == ":cmds") {
-            std::cout << page::holyVimHelp;
+            std::cout << page::holyVimHelp << "\n";
             continue;
         }
         if (cmds[0] == ":save" || cmds[0] == ":s") {

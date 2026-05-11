@@ -127,7 +127,7 @@ int Boot(char* args[]) {
         return -1;
 
     stx::ClearConsole();
-    std::cout << page::fetch;
+    std::cout << page::fetch << "\n";
 
     return Run();
 }

@@ -27,7 +27,7 @@ namespace {
     constexpr auto fetchText = MakeFetchText(
 "\033[33mHoly Linux\033[36m ","\n\
 \033[90m========================\n\
-\033[0mDeveloped by justn-thing\n\n");
+\033[0mDeveloped by justn-thing\n");
 }
 
 namespace page {
@@ -80,12 +80,12 @@ namespace page {
 \033[36mhelp\033[0m                    show this page\n\
 \033[36mclear / cls\033[0m             clear terminal\n\
 \033[36mfetch\033[0m                   display current release\n\
-\033[36mpoweroff [-d]\033[0m           shutdown (-d discards changes)\n\n";
+\033[36mpoweroff [-d]\033[0m           shutdown (-d discards changes)\n";
 
     constexpr std::string_view holyVim =
 "Holy Vim 1.1\n\
 \n\
-Type ':cmds' for Commands\n\n";
+Type ':cmds' for Commands\n";
 
     constexpr std::string_view holyVimHelp =
 "Holy Vim Commands\n\
@@ -98,5 +98,5 @@ Type ':cmds' for Commands\n\n";
 :reload   | :re      view the entire file in order\n\
 \n\
 :save     | :s       save and exit\n\
-:discard  | :d       exit without saving\n\n";
+:discard  | :d       exit without saving\n";
 }
