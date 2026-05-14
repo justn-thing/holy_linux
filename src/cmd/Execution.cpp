@@ -550,7 +550,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        if (Node* target = GetAbsolute(arg))
+        if (const Node* target = GetAbsolute(arg))
             PrintTree(target);
         else
             alert(msg::invalid_path, stx::red);
@@ -603,11 +603,11 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         return 99;
     } else if (!param.cmd.empty()) {
-        Node* bin = GetChild(FS::root, "bin", "dir");
+        const Node* bin = GetChild(FS::root, "bin", "dir");
         if (!bin)
             bin = NewChild(FS::root, "bin", "dir");
 
-        std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
+        const std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
 
         if (GetChild(bin, param.cmd, "exe")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".exe");
