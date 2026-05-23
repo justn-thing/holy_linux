@@ -166,12 +166,12 @@ void DisplayDir(const Node* parent) {
     std::cout << buffer.str();
 }
 
-void LockNode(Node* node, const bool lock) {
+void LockNode(Node* node, const bool lock, const bool recursive) {
     node->metadata.sudo = lock;
 
-    if (node->type == "dir") {
+    if (recursive) {
         for (const std::unique_ptr<Node>& child : node->children) {
-            LockNode(child.get(), lock);
+            LockNode(child.get(), lock, true);
         }
     }
 }

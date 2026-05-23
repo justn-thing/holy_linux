@@ -83,8 +83,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         bool recursive = false;
         for (const std::string& flag : param.flags) {
-            if (flag == "-r")
-                recursive = true;
+            if (flag == "-r") recursive = true;
         }
 
         if (const Node* target = GetAbsolute(arg); !target)
@@ -93,7 +92,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             alert(msg::cant_remove_root, stx::yellow);
         else if (target == FS::current || (recursive && IsAncestor(target, FS::current)))
             alert(msg::cant_remove_self, stx::yellow);
-        else if (target->metadata.sudo && !param.sudo)
+        else if (ContainsLockedNode(target) && !param.sudo)
             alert(msg::not_sudo, stx::yellow);
         else if (target->type != "dir")
             alert(msg::rmdir_file, stx::yellow);
@@ -489,7 +488,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        LockNode(target, param.cmd == "lock");
+        bool recursive = false;
+        for (const std::string& flag : param.flags) {
+            if (flag == "-r") recursive = true;
+        }
+
+        LockNode(target, param.cmd == "lock", recursive);
     } else if (param.cmd == "password" || param.cmd == "passwd") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
@@ -596,8 +600,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         bool discardChanges = false;
         for (const std::string& flag : param.flags) {
-            if (flag == "-d")
-                discardChanges = true;
+            if (flag == "-d") discardChanges = true;
         }
 
         if (discardChanges) return returnCode;

@@ -22,7 +22,7 @@ Node* NewChild(Node* parent, const std::string& name, const std::string& type, b
 char RemoveNode(const Node* node, bool recursive = false);
 short RemoveChild(const Node* parent, const std::string& name, const std::string& type, bool recursive = false);
 void DisplayDir(const Node* parent);
-void LockNode(Node* node, bool lock);
+void LockNode(Node* node, bool lock, bool recursive = false);
 size_t GetFileSize(const Node* node);
 void CopyNode(const Node* from, Node* to, bool sudo);
 bool ContainsLockedNode(const Node* node);
