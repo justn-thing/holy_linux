@@ -49,6 +49,7 @@ namespace msg {
     extern const std::string_view move_into_descendant;
     extern const std::string_view copy_into_file;
     extern const std::string_view move_into_file;
+    extern const std::string_view invalid_username;
 }
 
 void alert(std::string_view message, std::string_view color, bool startup = false, const std::string& opt = "");

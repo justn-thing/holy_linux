@@ -61,13 +61,17 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         if (index == std::string::npos)
             name = arg;
-        else if (const size_t dotIndex = arg.rfind('.');
-                index == arg.size() - 1 || (dotIndex != std::string::npos && dotIndex > index)) {
+        else if (index == arg.size() - 1) {
             alert(msg::invalid_arg, stx::yellow);
             return 0;
         } else {
             path = arg.substr(0, index + 1);
             name = arg.substr(index + 1);
+        }
+
+        if (name.contains('.') || name.empty()) {
+            alert(msg::invalid_arg, stx::yellow);
+            return 0;
         }
 
         if (Node* target = GetAbsolute(path);

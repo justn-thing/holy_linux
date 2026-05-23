@@ -122,18 +122,30 @@ bool LoginRoot() {
 }
 
 int Login() {
-    const Node* home = GetChild(FS::root, "home", "dir");
+    Node* home = GetChild(FS::root, "home", "dir");
     if (!home) {
-        NewChild(FS::root, "home", "dir");
-        return 1;
+        home = NewChild(FS::root, "home", "dir");
     }
 
     int dirAmount = 0;
     for (const std::unique_ptr<Node>& child : home->children)
         if (child->type == "dir")
             ++dirAmount;
-    if (dirAmount == 0)
-        return 1;
+    if (dirAmount == 0) {
+        std::string name;
+
+        while (true) {
+            std::cout << "No user found. Enter new username: ";
+            std::getline(std::cin, name);
+
+            if (name.empty() || name.contains('.') || name.contains('/')) {
+                alert(msg::invalid_username, stx::red);
+            } else break;
+        }
+
+        NewChild(home, name, "dir");
+        ++dirAmount;
+    }
 
     std::string userName;
     if (dirAmount == 1)

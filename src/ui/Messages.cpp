@@ -50,6 +50,7 @@ namespace msg {
     constexpr std::string_view move_into_descendant = "Cannot move a file into its descendant.\n";
     constexpr std::string_view copy_into_file = "Cannot copy a file into a non-dir file.\n";
     constexpr std::string_view move_into_file = "Cannot move a file into a non-dir file.\n";
+    constexpr std::string_view invalid_username = "Invalid username, try again.\n";
 }
 
 void alert(const std::string_view message, const std::string_view color, const bool startup, const std::string& opt) {
