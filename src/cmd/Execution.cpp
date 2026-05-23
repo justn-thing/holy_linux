@@ -273,7 +273,8 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         if (target->type == "cmd") {
             for (const std::string& line : split(target->value, '\n')) {
                 CommandParams params = ParseCommandLine(line);
-                Execute(params, true);
+                if (const int& returnCode = Execute(params, true); returnCode != 0)
+                    return returnCode;
             }
         } else if (target->type == "py") {
             std::ofstream fileout(SData::RAM::py);
