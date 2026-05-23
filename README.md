@@ -42,7 +42,7 @@ Runtime `rom/` and `ram/` directories are created next to the executable.
 ## Runtime Directories
 
 - `rom/` persistent virtual filesystem image (`fileSystem.txt`)
-- `ram/` temp files used by `execute`/`compile`
+- `ram/` temp files used by compiled/executable payloads
 
 ## Quick Demo
 
@@ -79,8 +79,8 @@ Filesystem
 - `du [path]` show serialized file size (`path` optional, defaults to current directory)
 - `tree [path]` print a recursive tree view (`path` optional, defaults to current directory)
 - `find [name] [path]` recursively find matching files/directories (`path` optional, defaults to current directory)
-- `lock [path]` lock node (sudo only)
-- `unlock [path]` unlock node (sudo only)
+- `lock [-r] [path]` lock node (sudo only, `-r` includes children)
+- `unlock [-r] [path]` unlock node (sudo only, `-r` includes children)
 
 Editing
 - `write` / `wr [name.ext]` open Holy Vim for supported text types
@@ -106,3 +106,4 @@ System
 - `clear` / `cls` clear terminal
 - `fetch` display release banner
 - `poweroff [-d]` shutdown (`-d` discards changes)
+- `reboot [-d]` restart (`-d` discards changes)

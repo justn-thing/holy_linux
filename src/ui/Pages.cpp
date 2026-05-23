@@ -53,8 +53,8 @@ namespace page {
 \033[36mdu [path]\033[0m               show serialized file size (path optional)\n\
 \033[36mtree [path]\033[0m             print recursive tree view (path optional)\n\
 \033[36mfind [name] [path]\033[0m      recursively find files/directories (path optional)\n\
-\033[36mlock [path]\033[0m             lock file or directory (sudo only)\n\
-\033[36munlock [path]\033[0m           unlock file or directory (sudo only)\n\
+\033[36mlock [-r] [path]\033[0m        lock file or directory (sudo only, -r includes children)\n\
+\033[36munlock [-r] [path]\033[0m      unlock file or directory (sudo only, -r includes children)\n\
 \n\
 \033[33mEditing\033[0m\n\
 \033[36mwrite / wr [name]\033[0m   open Holy Vim and write file\n\
@@ -80,7 +80,8 @@ namespace page {
 \033[36mhelp\033[0m                    show this page\n\
 \033[36mclear / cls\033[0m             clear terminal\n\
 \033[36mfetch\033[0m                   display current release\n\
-\033[36mpoweroff [-d]\033[0m           shutdown (-d discards changes)\n";
+\033[36mpoweroff [-d]\033[0m           shutdown (-d discards changes)\n\
+\033[36mreboot [-d]\033[0m             restart (-d discards changes)\n";
 
     constexpr std::string_view holyVim =
 "Holy Vim 1.1\n\
