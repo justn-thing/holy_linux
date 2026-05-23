@@ -15,6 +15,7 @@
 
 #include "../apps/HolyVim.hpp"
 #include "../cmd/CommandParser.hpp"
+#include "../core/ReturnCodes.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
@@ -81,8 +82,9 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         bool recursive = false;
-        for (const char flag : param.flags) {
-            recursive |= flag == 'r';
+        for (const std::string& flag : param.flags) {
+            if (flag == "-r")
+                recursive = true;
         }
 
         if (const Node* target = GetAbsolute(arg); !target)
@@ -586,22 +588,25 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         for (const Node* node : result) {
             std::cout << GetPath(node) << "\n";
         }
-    } else if (param.cmd == "poweroff") {
+    } else if (param.cmd == "poweroff" || param.cmd == "reboot") {
         alert(msg::begin_poweroff, stx::green);
 
+        const int returnCode = param.cmd == "poweroff" ? Poweroff : Reboot;
+
         bool discardChanges = false;
-        for (const char flag : param.flags) {
-            discardChanges |= flag == 'd';
+        for (const std::string& flag : param.flags) {
+            if (flag == "-d")
+                discardChanges = true;
         }
 
-        if (discardChanges) return 99;
+        if (discardChanges) return returnCode;
 
         alert(msg::begin_save_fs, stx::green);
         if (const bool saveSuccess = SaveFileSystem();
             !saveSuccess)
             alert(msg::fail_save_filesystem, stx::red);
 
-        return 99;
+        return returnCode;
     } else if (!param.cmd.empty()) {
         const Node* bin = GetChild(FS::root, "bin", "dir");
         if (!bin)

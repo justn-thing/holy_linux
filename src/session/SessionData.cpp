@@ -16,4 +16,10 @@ namespace SData {
     namespace ROM {
         std::filesystem::path fileSystem;
     }
+
+    void Reset() {
+        username = "//root//";
+        root = true;
+        cmdHistory.clear();
+    }
 }

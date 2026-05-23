@@ -18,4 +18,6 @@ namespace SData {
     namespace ROM {
         extern std::filesystem::path fileSystem;
     }
+
+    void Reset();
 }

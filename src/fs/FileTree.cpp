@@ -14,6 +14,12 @@ namespace FS {
     std::unique_ptr<Node> unique_ptr_root = std::make_unique<Node>("dir", "root", "");
     Node* root = unique_ptr_root.get();
     Node* current = root;
+
+    void Reset() {
+        unique_ptr_root = std::make_unique<Node>("dir", "root", "");
+        root = unique_ptr_root.get();
+        current = root;
+    }
 }
 
 Node* GetChild(const Node* parent, const std::string& name, const std::string& type) {
@@ -184,15 +190,15 @@ size_t GetFileSize(const Node* node) {
 
     const size_t miscSize = node->metadata.misc.length();
     const size_t headerSize = node->name.length()
-                              + 1 // "."
+                              + 1 // "\0"
                               + node->type.length()
-                              + 1 // " "
+                              + 1 // "\0"
                               + std::to_string(payloadSize).length()
-                              + 1 // " "
+                              + 1 // "\0"
                               + 1 // sudo flag
-                              + 1 // " "
+                              + 1 // "\0"
                               + std::to_string(miscSize).length()
-                              + 1; // "\n"
+                              + 1; // "\0"
 
     return headerSize + miscSize + payloadSize;
 }

@@ -9,6 +9,7 @@ namespace FS {
     extern std::unique_ptr<Node> unique_ptr_root;
     extern Node* root;
     extern Node* current;
+    void Reset();
 }
 
 Node* GetChild(const Node* parent, const std::string& name, const std::string& type);

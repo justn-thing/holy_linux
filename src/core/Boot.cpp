@@ -14,6 +14,7 @@
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
+#include "../core/ReturnCodes.hpp"
 #include "../core/Run.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
@@ -36,9 +37,8 @@ int BootStartupConfig() {
 
     if (const Node* startupConfig = GetAbsolute("/boot/startupConfig.cmd")) {
         for (const std::string& line : split(startupConfig->value, '\n')) {
-            if (CommandParams params = ParseCommandLine(line);
-                Execute(params, true) == 99)
-                return 99;
+            CommandParams params = ParseCommandLine(line);
+            Execute(params, true); // ignores poweroff and reboot
         }
     } else {
         alert(msg::startupcfg_not_exist, stx::yellow);
@@ -64,7 +64,7 @@ static std::filesystem::path GetExecutablePath(char* args[]) {
     std::wstring buffer(MAX_PATH, L'\0');
 
     while (true) {
-        const DWORD size = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        const DWORD size = GetModuleFileNameW(nullptr, buffer.data(), buffer.size());
         if (size == 0)
             return std::filesystem::absolute(args[0]);
 
@@ -117,17 +117,31 @@ int Boot(char* args[]) {
 
     BootFileSystem();
 
-    if (BootStartupConfig() == 99)
-        return 1;
+    BootStartupConfig();
 
     SData::root = false;
     stx::ClearConsole();
 
-    if (Login() == -1)
-        return -1;
+    if (Login() == -1) return -1;
 
     stx::ClearConsole();
     std::cout << page::fetch << "\n";
 
     return Run();
+}
+
+int Post(char* args[]) {
+#ifdef _WIN32
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+
+    while (true) {
+        if (const int& returnCode = Boot(args); returnCode != Reboot)
+            return returnCode;
+
+        SData::Reset();
+        FS::Reset();
+        stx::ClearConsole();
+    }
 }

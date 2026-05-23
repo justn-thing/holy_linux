@@ -5,6 +5,7 @@
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
+#include "../core/ReturnCodes.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/SessionData.hpp"
 #include "../ui/Syntax.hpp"
@@ -22,9 +23,9 @@ int Run() {
         std::string input;
         std::getline(std::cin, input);
 
-        if (CommandParams params = ParseCommandLine(input);
-            Execute(params) == 99)
-            return 0;
+        CommandParams params = ParseCommandLine(input);
+        if (const int& returnCode = Execute(params); returnCode != 0)
+            return returnCode;
 
         if (!input.empty())
             SData::cmdHistory.emplace_back(input);

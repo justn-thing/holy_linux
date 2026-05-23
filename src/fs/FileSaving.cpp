@@ -31,10 +31,11 @@ std::string SerializeNode(const Node* node) {
     const std::string& misc = node->metadata.misc;
 
     std::string out;
-    out += node->name + "." + node->type + " ";
-    out += std::to_string(payload.size()) + " ";
-    out += std::to_string(node->metadata.sudo ? 1 : 0) + " ";
-    out += std::to_string(misc.size()) + "\n";
+    out += node->name + '\0';
+    out += node->type + '\0';
+    out += std::to_string(payload.size()) + '\0';
+    out += std::to_string(node->metadata.sudo ? 1 : 0) + '\0';
+    out += std::to_string(misc.size()) + '\0';
     out += misc;
     out += payload;
 
@@ -67,31 +68,48 @@ void LoadDir(Node* parent, std::istream& in, const size_t limit) {
     while (LoadNode(parent, sub)) {}
 }
 
+static bool ReadNullTerminatedField(std::istream& in, std::string& field) {
+    field.clear();
+
+    if (std::getline(in, field, '\0'))
+        return true;
+
+    if (in.eof() && field.empty())
+        return false;
+
+    throw std::runtime_error("Loading filesystem failed; corrupt header");
+}
+
 bool LoadNode(Node* parent, std::istream& in) {
-    std::string header;
-    if (!getline(in, header))
+    std::string name;
+    if (!ReadNullTerminatedField(in, name))
         return false;
 
-    if (header.empty())
-        return false;
+    std::string type;
+    std::string payloadSizeText;
+    std::string sudoFlagText;
+    std::string miscSizeText;
 
-    std::string nameType;
-    size_t payloadSize;
-    int sudoFlag;
-    size_t miscSize;
+    if (!ReadNullTerminatedField(in, type) ||
+        !ReadNullTerminatedField(in, payloadSizeText) ||
+        !ReadNullTerminatedField(in, sudoFlagText) ||
+        !ReadNullTerminatedField(in, miscSizeText))
+        throw std::runtime_error("Loading filesystem failed; corrupt header");
 
-    {
-        if (std::stringstream ss(header);
-            !(ss >> nameType >> payloadSize >> sudoFlag >> miscSize))
-            throw std::runtime_error("Loading filesystem failed; corrupt header");
-    }
-
-    const size_t dot = nameType.rfind('.');
-    if (dot == std::string::npos || dot == 0 || dot == nameType.size() - 1)
+    if (name.empty() || type.empty())
         throw std::runtime_error("Loading filesystem failed; corrupt name/type");
 
-    const std::string name = nameType.substr(0, dot);
-    const std::string type = nameType.substr(dot + 1);
+    size_t payloadSize;
+    size_t miscSize;
+    int sudoFlag;
+
+    try {
+        payloadSize = std::stoull(payloadSizeText);
+        miscSize = std::stoull(miscSizeText);
+        sudoFlag = std::stoi(sudoFlagText);
+    } catch (const std::exception&) {
+        throw std::runtime_error("Loading filesystem failed; corrupt header");
+    }
 
     Metadata md;
     if (sudoFlag != 0 && sudoFlag != 1)

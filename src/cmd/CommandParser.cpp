@@ -10,11 +10,12 @@ CommandParams ParseCommandLine(const std::string& input) {
     CommandParams result;
     result.raw = input;
 
-    std::stringstream ss(input);
+    std::istringstream ss(input);
     ss >> result.cmd;
     if (result.cmd == "sudo") {
-        if (SData::root || LoginRoot())
+        if (SData::root || LoginRoot()) {
             result.sudo = true;
+        }
 
         if (!(ss >> result.cmd)) {
             result.cmd.clear();
@@ -23,16 +24,38 @@ CommandParams ParseCommandLine(const std::string& input) {
     }
 
     std::string temp;
-    if (!(ss >> temp))
-        return result;
+    std::string tempLong;
+    bool literalMode = false;
+    bool openQuotes = false;
 
-    if (temp.starts_with('-'))
-        result.flags = temp.substr(1);
-    else
-        result.args.push_back(std::move(temp));
+    while (ss >> temp) {
+        if (openQuotes) {
+            if (temp.back() == '"') {
+                tempLong += temp.substr(0, temp.size() - 1);
+                result.args.emplace_back(std::move(tempLong));
+                tempLong.clear();
+                openQuotes = false;
+            } else {
+                tempLong += temp + ' ';
+            }
+        } else if (temp[0] == '"') {
+            if (temp.back() == '"' && temp.size() > 1) {
+                result.args.emplace_back(temp.substr(1, temp.size() - 2));
+            } else {
+                tempLong += temp.substr(1) + ' ';
+                openQuotes = true;
+            }
+        } else if (!literalMode && temp == "--") {
+            literalMode = true;
+        } else if (!literalMode && temp[0] == '-') {
+            result.flags.emplace_back(std::move(temp));
+        } else {
+            result.args.emplace_back(std::move(temp));
+        }
+    }
 
-    while (ss >> temp)
-        result.args.push_back(std::move(temp));
+    if (!tempLong.empty())
+        result.args.emplace_back(std::move(tempLong));
 
     return result;
 }
