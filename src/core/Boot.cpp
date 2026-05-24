@@ -125,7 +125,7 @@ int Boot() {
     if (Login() == -1) return -1;
 
     stx::ClearConsole();
-    std::cout << page::fetch << "\n";
+    std::cout << page::fetch << '\n';
 
     return Run();
 }
