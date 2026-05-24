@@ -92,9 +92,9 @@ bool LoginRoot() {
         std::string newPass;
         std::string confirmPass;
         while (true) {
-            std::cout << "Please enter a new root password: ";
+            alert("Please enter a new root password: ", stx::yellow);
             std::getline(std::cin, newPass);
-            std::cout << "Please confirm the new root password: ";
+            alert("Please confirm the new root password: ", stx::yellow);
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
                 ChangePassword("//root//", newPass);
@@ -107,7 +107,7 @@ bool LoginRoot() {
     }
 
     for (size_t i = 0; i < 3; ++i) {
-        std::cout << "Password for root: ";
+        alert("Password for root: ", stx::yellow);
         std::getline(std::cin, enteredPass);
 
         if (enteredPass == pass) {
@@ -135,7 +135,7 @@ int Login() {
         std::string name;
 
         while (true) {
-            std::cout << "No user found. Enter new username: ";
+            alert("No user found. Enter new username: ", stx::yellow);
             std::getline(std::cin, name);
 
             if (name.empty() || name.contains('.') || name.contains('/')) {
@@ -182,9 +182,9 @@ int Login() {
         std::string newPass;
         std::string confirmPass;
         while (true) {
-            std::cout << "Please enter a new " << userName << " password: ";
+            alert("Please enter a new " + userName + " password: ", stx::yellow);
             std::getline(std::cin, newPass);
-            std::cout << "Please confirm the new " << userName << " password: ";
+            alert("Please confirm the new " + userName + " password: ", stx::yellow);
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
                 ChangePassword(userName, newPass);
