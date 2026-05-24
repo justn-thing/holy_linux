@@ -5,15 +5,27 @@
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
-#include "../core/ReturnCodes.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/SessionData.hpp"
 #include "../ui/Syntax.hpp"
 
 void PrintShellPrompt() {
-    std::cout << stx::cyan << SData::username << stx::yellow << "@holy-linux "
-              << stx::white << GetCosmeticPath() << stx::gray << " $"
-              << stx::reset;
+    std::string buffer;
+    buffer += stx::cyan;
+    buffer += SData::username;
+    buffer += stx::yellow;
+    buffer += "@holy-linux ";
+    buffer += stx::gray;
+    buffer += '<';
+    buffer += stx::white;
+    buffer += GetCosmeticPath();
+    buffer += stx::gray;
+    buffer += '>';
+    buffer += stx::gray;
+    buffer += " $";
+    buffer += stx::reset;
+
+    std::cout << buffer;
 }
 
 int Run() {

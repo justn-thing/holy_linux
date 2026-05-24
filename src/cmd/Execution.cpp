@@ -257,7 +257,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        std::cout << target->value << "\n";
+        std::cout << target->value << '\n';
     } else if (param.cmd == "execute" || param.cmd == "exec") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
@@ -568,32 +568,32 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             ChangePassword(root ? "//root//" : SData::username, param.args[0]);
     } else if (param.cmd == "history") {
         for (const std::string& cmd : SData::cmdHistory) {
-            std::cout << cmd << "\n";
+            std::cout << cmd << '\n';
         }
     } else if (param.cmd == "echo") {
         for (const std::string& word : param.args)
             std::cout << word << " ";
-        std::cout << "\n";
+        std::cout << '\n';
     } else if (param.cmd == "help") {
-        std::cout << page::help << "\n";
+        std::cout << page::help << '\n';
     } else if (param.cmd == "clear" || param.cmd == "cls") {
         stx::ClearConsole();
     } else if (param.cmd == "fetch") {
-        std::cout << page::fetch << "\n";
+        std::cout << page::fetch << '\n';
     } else if (param.cmd == "pwd") {
-        std::cout << GetPath(FS::current) << "\n";
+        std::cout << GetPath(FS::current) << '\n';
     } else if (param.cmd == "whoami") {
-        std::cout << SData::username << "\n";
+        std::cout << SData::username << '\n';
     } else if (param.cmd == "date") {
         const auto now = std::chrono::system_clock::now();
         const std::time_t date = std::chrono::system_clock::to_time_t(now);
 
-        std::cout << std::put_time(std::localtime(&date), "%d/%m/%Y") << "\n";
+        std::cout << std::put_time(std::localtime(&date), "%d/%m/%Y") << '\n';
     } else if (param.cmd == "time") {
         const auto now = std::chrono::system_clock::now();
         const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-        std::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << "\n";
+        std::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << '\n';
     } else if (param.cmd == "du") {
         const Node* node;
         if (param.args.empty()) {
@@ -611,7 +611,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         double kB = static_cast<double>(bytes) / 1024.0;
         double MB = kB / 1024.0;
         double GB = MB / 1024.0;
-        std::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << "\n";
+        std::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << '\n';
     } else if (param.cmd == "tree") {
         if (param.args.empty()) {
             PrintTree(FS::current);
@@ -652,7 +652,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         for (const Node* node : result) {
-            std::cout << GetPath(node) << "\n";
+            std::cout << GetPath(node) << '\n';
         }
     } else if (param.cmd == "poweroff" || param.cmd == "reboot") {
         alert(msg::begin_poweroff, stx::green);

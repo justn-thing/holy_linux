@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <sstream>
 #include <vector>
 
 #include "../session/SessionData.hpp"
@@ -148,22 +147,62 @@ short RemoveChild(const Node* parent, const std::string& name, const std::string
     return 0;
 }
 
+void AddFileNameSeparator(std::string& buffer) {
+    buffer += stx::yellow;
+    buffer += "\"";
+    buffer += stx::reset;
+}
+
+void AddTreeNodeName(std::string& buffer, const Node* node) {
+    const bool quoted = node->name.contains(' ') || node->type.contains(' ');
+
+    if (quoted) AddFileNameSeparator(buffer);
+
+    buffer += node->name;
+    if (node->type != "dir") {
+        buffer += '.';
+        buffer += node->type;
+    }
+
+    if (quoted) AddFileNameSeparator(buffer);
+}
+
 void DisplayDir(const Node* parent) {
     if (parent->children.empty()) {
         alert(msg::dir_empty, stx::red);
         return;
     }
 
-    std::ostringstream buffer;
+    std::string buffer;
     for (const std::unique_ptr<Node>& child : parent->children) {
-        if (child->type == "dir") {
-            buffer << child->name << " ";
-        } else {
-            buffer << child->name << "." << child->type << " ";
-        }
+        const bool containsSpace = child->name.contains(' ') || child->type.contains(' ');
+        if (containsSpace) AddFileNameSeparator(buffer);
+        else buffer += ' ';
+
+        buffer += child->name;
+        if (child->type != "dir")
+            buffer += '.' + child->type;
+
+        if (containsSpace) AddFileNameSeparator(buffer);
+
+        buffer += '\n';
     }
-    buffer << "\n";
-    std::cout << buffer.str();
+    std::cout << buffer;
+}
+
+void PrintTreeChildren(const Node* node, const std::string& prefix) {
+    for (size_t i = 0; i < node->children.size(); ++i) {
+        const Node* child = node->children[i].get();
+        const bool isLast = i == node->children.size() - 1;
+
+        std::string buffer = prefix;
+        buffer += isLast ? "└── " : "├── ";
+        AddTreeNodeName(buffer, child);
+        buffer += '\n';
+        std::cout << buffer;
+
+        PrintTreeChildren(child, prefix + (isLast ? "    " : "│   "));
+    }
 }
 
 void LockNode(Node* node, const bool lock, const bool recursive) {
@@ -256,18 +295,8 @@ void PrintTree(const Node* node, const int indent) {
         std::cout << ' ';
     }
 
-    if (indent == 0) {
-        std::cout << GetPath(node) << "\n";
-    } else {
-        std::cout << node->name;
-        if (node->type != "dir")
-            std::cout << "." << node->type;
-        std::cout << "\n";
-    }
-
-    for (const std::unique_ptr<Node>& child : node->children) {
-        PrintTree(child.get(), indent + 2);
-    }
+    std::cout << GetPath(node) << '\n';
+    PrintTreeChildren(node, std::string(indent, ' '));
 }
 
 void FindNodes(Node* ancestor, const std::string& name, const std::string& type, std::vector<Node*>& result,
