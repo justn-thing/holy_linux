@@ -34,7 +34,6 @@ namespace msg {
     constexpr std::string_view fail_save_filesystem = "Failed to save filesystem file.\n\n";
     constexpr std::string_view fail_mount = "Failed to mount file.\n";
     constexpr std::string_view fail_compile = "Failed to compile file.\n";
-    constexpr std::string_view mnt_doesnt_exist = "/root/mnt directory does not exist, creating it...\n";
     constexpr std::string_view unknown_cmd = "Unknown command.\n";
     constexpr std::string_view fail_confirm = "Verification failed.\n";
     constexpr std::string_view cant_remove_root = "Cannot remove root.\n";

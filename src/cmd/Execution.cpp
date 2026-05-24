@@ -9,7 +9,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -26,15 +25,13 @@
 #include "../util/Misc.hpp"
 
 int Execute(CommandParams& param, const bool startupConfigPhase) {
-    const std::string arg = param.args.empty() ? "" : param.args[0];
-
     if (param.cmd == "cd") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        if (Node* target = GetAbsolute(arg);
+        if (Node* target = GetAbsolute(param.args[0]);
             target && target->type == "dir") {
             if (target->metadata.sudo && !param.sudo)
                 alert(msg::not_sudo, stx::yellow);
@@ -43,30 +40,30 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         } else
             alert(msg::dir_not_found, stx::red, startupConfigPhase);
     } else if (param.cmd == "dir" || param.cmd == "ls") {
-        if (arg.empty())
+        if (param.args.empty())
             DisplayDir(FS::current);
-        else if (const Node* target = GetAbsolute(arg))
+        else if (const Node* target = GetAbsolute(param.args[0]))
             DisplayDir(target);
         else
             alert(msg::dir_not_found, stx::red, startupConfigPhase);
     } else if (param.cmd == "mkdir") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const size_t index = arg.rfind('/');
+        const size_t index = param.args[0].rfind('/');
         std::string path;
         std::string name;
 
         if (index == std::string::npos)
-            name = arg;
-        else if (index == arg.size() - 1) {
+            name = param.args[0];
+        else if (index == param.args[0].size() - 1) {
             alert(msg::invalid_arg, stx::yellow);
             return 0;
         } else {
-            path = arg.substr(0, index + 1);
-            name = arg.substr(index + 1);
+            path = param.args[0].substr(0, index + 1);
+            name = param.args[0].substr(index + 1);
         }
 
         if (name.contains('.') || name.empty()) {
@@ -80,7 +77,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         else
             alert(msg::invalid_path, stx::red, startupConfigPhase);
     } else if (param.cmd == "rmdir") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
@@ -94,7 +91,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             }
         }
 
-        if (const Node* target = GetAbsolute(arg); !target)
+        if (const Node* target = GetAbsolute(param.args[0]); !target)
             alert(msg::dir_not_found, stx::red);
         else if (target == FS::root)
             alert(msg::cant_remove_root, stx::yellow);
@@ -107,21 +104,21 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         else
             RemoveNode(target, recursive);
     } else if (param.cmd == "mkfile" || param.cmd == "touch") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const size_t index = arg.rfind('/');
+        const size_t index = param.args[0].rfind('/');
         std::string path;
         std::string name;
         std::string type;
 
         if (index == std::string::npos)
-            name = arg;
+            name = param.args[0];
         else {
-            path = arg.substr(0, index + 1);
-            name = arg.substr(index + 1);
+            path = param.args[0].substr(0, index + 1);
+            name = param.args[0].substr(index + 1);
         }
 
         if (const size_t dotIndex = name.rfind('.');
@@ -142,12 +139,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         else
             alert(msg::invalid_path, stx::red, startupConfigPhase);
     } else if (param.cmd == "rmfile" || param.cmd == "rm") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        if (const Node* target = GetAbsolute(arg); !target)
+        if (const Node* target = GetAbsolute(param.args[0]); !target)
             alert(msg::file_not_found, stx::red);
         else if (target->type == "dir")
             alert(msg::rmfile_dir, stx::yellow);
@@ -165,7 +162,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        if (Node* target = GetAbsolute(arg); !target)
+        if (Node* target = GetAbsolute(param.args[0]); !target)
             alert(msg::file_not_found, stx::red);
         else if (target == FS::root)
             alert(msg::cant_rename_root, stx::yellow);
@@ -206,12 +203,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             }
         }
     } else if (param.cmd == "write" || param.cmd == "wr" || param.cmd == "edit") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        Node* target = GetAbsolute(arg);
+        Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -234,12 +231,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         HolyVim(target, param.cmd);
     } else if (param.cmd == "read" || param.cmd == "cat") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const Node* target = GetAbsolute(arg);
+        const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -262,12 +259,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         std::cout << target->value << "\n";
     } else if (param.cmd == "execute" || param.cmd == "exec") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const Node* target = GetAbsolute(arg);
+        const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -313,12 +310,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         } else
             alert(msg::invalid_file_type, stx::yellow);
     } else if (param.cmd == "compile" || param.cmd == "comp") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const Node* target = GetAbsolute(arg);
+        const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -376,49 +373,87 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             alert(msg::not_sudo, stx::yellow);
             return 0;
         }
-
-        if (param.args.size() < 2) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
 
-        const size_t index = param.args[1].rfind('.');
+        const std::string fileName = std::filesystem::path(param.args[0]).filename().string();
+        const size_t index = fileName.rfind('.');
         if (index == std::string::npos) {
             alert(msg::invalid_arg, stx::yellow);
             return 0;
         }
 
-        const std::string name = param.args[1].substr(0, index);
-        const std::string type = param.args[1].substr(index + 1);
-
-        std::ifstream filein(arg);
-        if (!filein.is_open()) {
-            alert(msg::fail_mount, stx::red);
+        const std::string name = fileName.substr(0, index);
+        const std::string type = fileName.substr(index + 1);
+        if (name.contains('.') || name.empty() || type.empty()) {
+            alert(msg::invalid_arg, stx::yellow);
             return 0;
-        }
-        std::stringstream fileValue;
-        fileValue << filein.rdbuf();
-
-        Node* mount = GetChild(FS::root, "mnt", "dir");
-        if (!mount) {
-            alert(msg::mnt_doesnt_exist, stx::yellow);
-            mount = NewChild(FS::root, "mnt", "dir", true);
         }
 
         bool allowed = false;
         for (const std::array<std::string, 4> allowedTypes = {"txt", "cmd", "py", "cpp"};
-            const std::string& allowedType : allowedTypes)
-            allowed |= type == allowedType;
-
+            const std::string& allowedType : allowedTypes) {
+            if (type == allowedType) {
+                allowed = true;
+                break;
+            }
+        }
         if (!allowed) {
             alert(msg::invalid_file_type, stx::yellow);
             return 0;
         }
 
-        if (Node* mountedFile = NewChild(mount, name, type))
-            mountedFile->value = fileValue.str();
-        else
-            alert(msg::file_alr_exists, stx::yellow);
+        std::ifstream filein(param.args[0], std::ios::binary);
+        if (!filein.is_open()) {
+            alert(msg::fail_mount, stx::red);
+            return 0;
+        }
+
+        Node* mount = GetChild(FS::root, "mnt", "dir");
+        if (!mount)
+            mount = NewChild(FS::root, "mnt", "dir", true);
+
+        if (Node* mountedFile = NewChild(mount, name, type)) {
+            filein.seekg(0, std::ios::end);
+            std::string data;
+            data.resize(filein.tellg());
+
+            filein.seekg(0, std::ios::beg);
+            filein.read(data.data(), static_cast<std::streamsize>(data.size()));
+
+            mountedFile->value = std::move(data);
+        } else alert(msg::file_alr_exists, stx::yellow);
+    } else if (param.cmd == "export") {
+        if (param.args.empty()) {
+            alert(msg::arg_missing, stx::yellow);
+            return 0;
+        }
+        if (!param.sudo) {
+            alert(msg::not_sudo, stx::yellow);
+            return 0;
+        }
+
+        Node* target = GetAbsolute(param.args[0]);
+        if (!target) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+        if (target->type == "dir") {
+            alert(msg::invalid_file_type, stx::yellow);
+            return 0;
+        }
+
+        const std::filesystem::path newFile = SData::Export::selfDir / (target->name + '.' + target->type);
+
+        std::ofstream fileout(newFile, std::ios::binary);
+        if (!fileout.is_open()) {
+            alert(msg::file_not_found, stx::yellow);
+            return 0;
+        }
+
+        fileout.write(target->value.data(), static_cast<std::streamsize>(target->value.size()));
     } else if (param.cmd == "copy" || param.cmd == "cp") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
@@ -480,7 +515,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         MoveNode(fromNode, toNode, param.sudo);
     } else if (param.cmd == "lock" || param.cmd == "unlock") {
-        if (arg.empty()) {
+        if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
             return 0;
         }
@@ -490,7 +525,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        Node* target = GetAbsolute(arg);
+        Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
             return 0;
@@ -530,7 +565,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         if (param.args[0].empty() || param.args[0] != param.args[1])
             alert(msg::pass_set_fail, stx::yellow);
         else
-            ChangePassword(root ? "//root//" : SData::username, arg);
+            ChangePassword(root ? "//root//" : SData::username, param.args[0]);
     } else if (param.cmd == "history") {
         for (const std::string& cmd : SData::cmdHistory) {
             std::cout << cmd << "\n";
@@ -583,7 +618,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        if (const Node* target = GetAbsolute(arg))
+        if (const Node* target = GetAbsolute(param.args[0]))
             PrintTree(target);
         else
             alert(msg::invalid_path, stx::red);
@@ -605,11 +640,11 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         std::vector<Node*> result;
-        if (const size_t dot = arg.rfind('.');
-            dot == std::string::npos || dot == arg.size() - 1)
-            FindNodes(ancestor, arg.substr(0, dot), "", result, true);
+        if (const size_t dot = param.args[0].rfind('.');
+            dot == std::string::npos || dot == param.args[0].size() - 1)
+            FindNodes(ancestor, param.args[0].substr(0, dot), "", result, true);
         else
-            FindNodes(ancestor, arg.substr(0, dot), arg.substr(dot + 1), result);
+            FindNodes(ancestor, param.args[0].substr(0, dot), param.args[0].substr(dot + 1), result);
 
         if (result.empty()) {
             alert(msg::file_not_found, stx::yellow);

@@ -9,6 +9,8 @@ namespace SData {
     extern bool root;
     extern std::vector<std::string> cmdHistory;
 
+    extern std::filesystem::path selfParentPath;
+
     namespace RAM {
         extern std::filesystem::path py;
         extern std::filesystem::path cpp;
@@ -17,6 +19,10 @@ namespace SData {
 
     namespace ROM {
         extern std::filesystem::path fileSystem;
+    }
+
+    namespace Export {
+        extern std::filesystem::path selfDir;
     }
 
     void Reset();

@@ -1,4 +1,4 @@
 #pragma once
 
-int Boot(char* args[]);
+int Boot();
 int Post(char* args[]);

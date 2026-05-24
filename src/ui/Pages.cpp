@@ -35,8 +35,9 @@ namespace page {
 
     constexpr std::string_view help =
 "\033[36mHoly Linux Command Help\033[0m\n\
-\033[90mTip:\033[0m use \033[33msudo [cmd]\033[0m for admin-only commands\n\
-\033[90mFlags:\033[0m short flags use \033[33m-[letter]\033[0m, long flags use \033[33m--[name]\033[0m\n\
+\033[90mTip:\033[0m use \033[33msudo [command] [args]\033[0m for admin-only commands\n\
+\033[90mFlags:\033[0m short flags use \033[33m-[flag]\033[0m, long flags use \033[33m--[flag]\033[0m\n\
+\033[90mArgs:\033[0m [path] = virtual path, [file] = virtual file, [hostFile] = external file\n\
 \n\
 \033[33mNavigation\033[0m\n\
 \033[36mcd [path]\033[0m               change directory\n\
@@ -44,35 +45,36 @@ namespace page {
 \033[36mpwd\033[0m                     print current path\n\
 \n\
 \033[33mFilesystem\033[0m\n\
-\033[36mmkdir [name]\033[0m            create a directory\n\
-\033[36mrmdir [-r] [name]\033[0m       remove a directory\n\
-\033[36mmkfile / touch [name]\033[0m   create a file (default: .txt)\n\
-\033[36mrmfile / rm [name]\033[0m      remove a file\n\
-\033[36mrename [path] [name]\033[0m    rename directory or file\n\
-\033[36mcopy / cp [src] [dest]\033[0m  copy file to directory\n\
-\033[36mmove / mv [src] [dest]\033[0m  move file to directory\n\
+\033[36mmkdir [path]\033[0m            create a directory\n\
+\033[36mrmdir [-r] [path]\033[0m       remove a directory\n\
+\033[36mmkfile / touch [file]\033[0m   create a file (default: .txt)\n\
+\033[36mrmfile / rm [file]\033[0m      remove a file\n\
+\033[36mrename [path] [newName]\033[0m rename directory or file\n\
+\033[36mcopy / cp [srcPath] [destDir]\033[0m copy file or directory to directory\n\
+\033[36mmove / mv [srcPath] [destDir]\033[0m move file or directory to directory\n\
 \033[36mdu [path]\033[0m               show serialized file size (path optional)\n\
 \033[36mtree [path]\033[0m             print recursive tree view (path optional)\n\
-\033[36mfind [name] [path]\033[0m      recursively find files/directories (path optional)\n\
+\033[36mfind [pattern] [path]\033[0m   recursively find files/directories (path optional)\n\
 \033[36mlock [-r] [path]\033[0m        lock file or directory (sudo only, -r includes children)\n\
 \033[36munlock [-r] [path]\033[0m      unlock file or directory (sudo only, -r includes children)\n\
 \n\
 \033[33mEditing\033[0m\n\
-\033[36mwrite / wr [name]\033[0m   open Holy Vim and write file\n\
-\033[36medit [name]\033[0m         edit existing file in Holy Vim\n\
-\033[36mread / cat [name]\033[0m   print file contents\n\
+\033[36mwrite / wr [file]\033[0m       open Holy Vim and write file\n\
+\033[36medit [file]\033[0m             edit existing file in Holy Vim\n\
+\033[36mread / cat [file]\033[0m       print file contents\n\
 \033[90msupported:\033[0m .txt .cmd .py .cpp\n\
 \n\
 \033[33mExecution\033[0m\n\
-\033[36mexecute / exec [name]\033[0m      run .cmd, .py, or .exe\n\
-\033[36mcompile / comp [name.cpp]\033[0m  compile .cpp into .exe (g++ required)\n\
-\033[36m[name]\033[0m                     run package from /bin if found\n\
+\033[36mexecute / exec [file]\033[0m      run .cmd, .py, or .exe\n\
+\033[36mcompile / comp [file]\033[0m      compile .cpp into .exe (g++ required)\n\
+\033[36m[command]\033[0m                  run package from /bin if found\n\
 \n\
-\033[33mMount\033[0m\n\
-\033[36mmount / mnt [hostPath] [name]\033[0m  mount .txt/.cmd/.py/.cpp to /mnt (sudo only)\n\
+\033[33mImport / Export\033[0m\n\
+\033[36mmount / mnt [hostFile]\033[0m  mount .txt/.cmd/.py/.cpp to /mnt (sudo only)\n\
+\033[36mexport [file]\033[0m           write file to external export directory (sudo only)\n\
 \n\
 \033[33mSystem\033[0m\n\
-\033[36mpassword / passwd [--root] [new] [confirm]\033[0m change password (--root: root password, sudo only)\n\
+\033[36mpassword / passwd [--root] [newPassword] [confirmPassword]\033[0m change password (--root: root password, sudo only)\n\
 \033[36mhistory\033[0m                 show command history\n\
 \033[36mecho [text]\033[0m             print text\n\
 \033[36mwhoami\033[0m                  print current user\n\

@@ -52,7 +52,7 @@ int BootStartupConfig() {
     return 0;
 }
 
-static void CreateFile(const std::filesystem::path& path) {
+void CreateMissingFile(const std::filesystem::path& path) {
     if (!std::filesystem::exists(path)) {
         std::ofstream fileout(path);
         fileout.close();
@@ -60,7 +60,7 @@ static void CreateFile(const std::filesystem::path& path) {
 }
 
 #ifdef _WIN32
-static std::filesystem::path GetExecutablePath(char* args[]) {
+std::filesystem::path GetExecutablePath(char* args[]) {
     std::wstring buffer(MAX_PATH, L'\0');
 
     while (true) {
@@ -77,18 +77,15 @@ static std::filesystem::path GetExecutablePath(char* args[]) {
     }
 }
 #else
-static std::filesystem::path GetExecutablePath(char* args[]) {
+std::filesystem::path GetExecutablePath(char* args[]) {
     return std::filesystem::absolute(args[0]);
 }
 #endif
 
-void BootFileDependencies(char* args[]) {
+void BootFileDependencies() {
     using namespace std::filesystem;
 
-    const path exePath = GetExecutablePath(args);
-    const path exeDir = exePath.parent_path();
-
-    const path ramDir = exeDir / "ram";
+    const path ramDir = SData::selfParentPath / "ram";
     SData::RAM::cpp = ramDir / "cppCompileable.cpp";
     SData::RAM::py = ramDir / "pythonExecutable.txt";
 #ifdef _WIN32
@@ -97,23 +94,26 @@ void BootFileDependencies(char* args[]) {
     SData::RAM::exe = ramDir / "linuxExecutable";
 #endif
 
-    const path romDir = exeDir / "rom";
+    const path romDir = SData::selfParentPath / "rom";
     SData::ROM::fileSystem = romDir / "fileSystem.txt";
+
+    SData::Export::selfDir = SData::selfParentPath / "export";
 
     create_directory(ramDir);
     create_directory(romDir);
+    create_directory(SData::Export::selfDir);
 
-    CreateFile(SData::RAM::cpp);
-    CreateFile(SData::RAM::py);
-    CreateFile(SData::RAM::exe);
+    CreateMissingFile(SData::RAM::cpp);
+    CreateMissingFile(SData::RAM::py);
+    CreateMissingFile(SData::RAM::exe);
 
-    CreateFile(SData::ROM::fileSystem);
+    CreateMissingFile(SData::ROM::fileSystem);
 }
 
-int Boot(char* args[]) {
+int Boot() {
     alert(msg::begin_boot, stx::green);
 
-    BootFileDependencies(args);
+    BootFileDependencies();
 
     BootFileSystem();
 
@@ -136,8 +136,10 @@ int Post(char* args[]) {
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
+    SData::selfParentPath = GetExecutablePath(args).parent_path();
+
     while (true) {
-        if (const int& returnCode = Boot(args); returnCode != Reboot)
+        if (const int& returnCode = Boot(); returnCode != Reboot)
             return returnCode;
 
         SData::Reset();

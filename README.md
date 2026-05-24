@@ -37,12 +37,13 @@ Run the built executable:
 build/holy_linux.exe
 ```
 
-Runtime `rom/` and `ram/` directories are created next to the executable.
+Runtime directories are created next to the executable.
 
 ## Runtime Directories
 
 - `rom/` persistent virtual filesystem image (`fileSystem.txt`)
 - `ram/` temp files used by compiled/executable payloads
+- `export/` exported files
 
 ## Quick Demo
 
@@ -61,43 +62,45 @@ poweroff
 
 ## Commands
 
-- `sudo [cmd] [arg]` run a command with root privileges
-- Short flags use `-[letter]`, long flags use `--[name]`; unknown flags are rejected.
+- `sudo [command] [args]` run a command with root privileges
+- Short flags use `-[flag]`, long flags use `--[flag]`; unknown flags are rejected.
+- Placeholder guide: `[path]` is a virtual filesystem path, `[file]` is a virtual file path, and `[hostFile]` is an external file path.
 
 Navigation
-- `cd [arg]` change directory
-- `dir` / `ls [arg]` list directory contents
+- `cd [path]` change directory
+- `dir` / `ls [path]` list directory contents
 - `pwd` print working directory
 
 Filesystem
-- `mkdir [name]` create directory
-- `rmdir [-r] [name]` remove directory
-- `mkfile` / `touch [name]` create file (defaults to `.txt`)
-- `rmfile` / `rm [name.ext]` remove file
-- `rename [path] [name]` rename file or directory
-- `copy` / `cp [src] [dest]` copy file to directory
-- `move` / `mv [src] [dest]` move file to directory
+- `mkdir [path]` create directory
+- `rmdir [-r] [path]` remove directory
+- `mkfile` / `touch [file]` create file (defaults to `.txt`)
+- `rmfile` / `rm [file]` remove file
+- `rename [path] [newName]` rename file or directory
+- `copy` / `cp [srcPath] [destDir]` copy file or directory to directory
+- `move` / `mv [srcPath] [destDir]` move file or directory to directory
 - `du [path]` show serialized file size (`path` optional, defaults to current directory)
 - `tree [path]` print a recursive tree view (`path` optional, defaults to current directory)
-- `find [name] [path]` recursively find matching files/directories (`path` optional, defaults to current directory)
+- `find [pattern] [path]` recursively find matching files/directories (`path` optional, defaults to current directory)
 - `lock [-r] [path]` lock node (sudo only, `-r` includes children)
 - `unlock [-r] [path]` unlock node (sudo only, `-r` includes children)
 
 Editing
-- `write` / `wr [name.ext]` open Holy Vim for supported text types
-- `edit [name.ext]` edit existing file in Holy Vim
-- `read` / `cat [name.ext]` print file contents
+- `write` / `wr [file]` open Holy Vim for supported text types
+- `edit [file]` edit existing file in Holy Vim
+- `read` / `cat [file]` print file contents
 
 Execution
-- `execute` / `exec [name.ext]` run `.cmd`, `.py`, or `.exe`
-- `compile` / `comp [name.cpp]` compile to `.exe` (requires `g++`)
-- `[name]` run matching `.exe`, `.cmd`, or `.py` package from `/bin`
+- `execute` / `exec [file]` run `.cmd`, `.py`, or `.exe`
+- `compile` / `comp [file]` compile `.cpp` to `.exe` (requires `g++`)
+- `[command]` run matching `.exe`, `.cmd`, or `.py` package from `/bin`
 
-Mount
-- `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` (sudo only)
+Import / Export
+- `mount` / `mnt [hostFile]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` using its external filename (sudo only)
+- `export [file]` write a virtual file to the external `export` directory (sudo only)
 
 System
-- `password` / `passwd [--root] [new] [confirm]` change password (`--root` changes root password, sudo only)
+- `password` / `passwd [--root] [newPassword] [confirmPassword]` change password (`--root` changes root password, sudo only)
 - `history` show command history
 - `echo [text]` print text
 - `whoami` print current user

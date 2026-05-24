@@ -33,7 +33,6 @@ namespace msg {
     extern const std::string_view fail_save_filesystem;
     extern const std::string_view fail_mount;
     extern const std::string_view fail_compile;
-    extern const std::string_view mnt_doesnt_exist;
     extern const std::string_view unknown_cmd;
     extern const std::string_view fail_confirm;
     extern const std::string_view cant_remove_root;
