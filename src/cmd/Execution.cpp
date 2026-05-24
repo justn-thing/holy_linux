@@ -86,8 +86,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         bool recursive = false;
-        for (const std::string& flag : param.flags) {
-            if (flag == "-r") recursive = true;
+        for (const char& flag : param.shortFlags) {
+            if (flag == 'r') recursive = true;
+            else {
+                alert(msg::unknown_flag, stx::yellow);
+                return 0;
+            }
         }
 
         if (const Node* target = GetAbsolute(arg); !target)
@@ -493,8 +497,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         }
 
         bool recursive = false;
-        for (const std::string& flag : param.flags) {
-            if (flag == "-r") recursive = true;
+        for (const char& flag : param.shortFlags) {
+            if (flag == 'r') recursive = true;
+            else {
+                alert(msg::unknown_flag, stx::yellow);
+                return 0;
+            }
         }
 
         LockNode(target, param.cmd == "lock", recursive);
@@ -504,11 +512,25 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             return 0;
         }
 
-        if (param.args[0] == param.args[1] && !param.args[0].empty()) {
-            if (!ChangePassword(SData::username, arg))
-                alert(msg::pass_set_fail, stx::yellow);
-        } else
+        bool root = false;
+        for (const std::string& flag : param.longFlags) {
+            if (flag == "root") {
+                if (param.sudo) root = true;
+                else {
+                    alert(msg::not_sudo, stx::yellow);
+                    return 0;
+                }
+            }
+            else {
+                alert(msg::unknown_flag, stx::yellow);
+                return 0;
+            }
+        }
+
+        if (param.args[0].empty() || param.args[0] != param.args[1])
             alert(msg::pass_set_fail, stx::yellow);
+        else
+            ChangePassword(root ? "//root//" : SData::username, arg);
     } else if (param.cmd == "history") {
         for (const std::string& cmd : SData::cmdHistory) {
             std::cout << cmd << "\n";
@@ -603,8 +625,12 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         const int returnCode = param.cmd == "poweroff" ? Poweroff : Reboot;
 
         bool discardChanges = false;
-        for (const std::string& flag : param.flags) {
-            if (flag == "-d") discardChanges = true;
+        for (const char& flag : param.shortFlags) {
+            if (flag == 'd') discardChanges = true;
+            else {
+                alert(msg::unknown_flag, stx::yellow);
+                return 0;
+            }
         }
 
         if (discardChanges) return returnCode;

@@ -6,7 +6,8 @@
 struct CommandParams {
     std::string raw;
     std::string cmd;
-    std::vector<std::string> flags;
+    std::string shortFlags;
+    std::vector<std::string> longFlags;
     std::vector<std::string> args;
     bool sudo = false;
 };

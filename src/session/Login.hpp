@@ -7,7 +7,7 @@ struct PassReturn {
     std::string pass;
 };
 
-bool ChangePassword(const std::string& username, const std::string& password);
+void ChangePassword(const std::string& username, const std::string& password);
 PassReturn GetCorrectPass(const std::string& userName);
 bool LoginRoot();
 int Login();

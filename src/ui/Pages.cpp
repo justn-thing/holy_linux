@@ -36,6 +36,7 @@ namespace page {
     constexpr std::string_view help =
 "\033[36mHoly Linux Command Help\033[0m\n\
 \033[90mTip:\033[0m use \033[33msudo [cmd]\033[0m for admin-only commands\n\
+\033[90mFlags:\033[0m short flags use \033[33m-[letter]\033[0m, long flags use \033[33m--[name]\033[0m\n\
 \n\
 \033[33mNavigation\033[0m\n\
 \033[36mcd [path]\033[0m               change directory\n\
@@ -71,7 +72,7 @@ namespace page {
 \033[36mmount / mnt [hostPath] [name]\033[0m  mount .txt/.cmd/.py/.cpp to /mnt (sudo only)\n\
 \n\
 \033[33mSystem\033[0m\n\
-\033[36mpassword / passwd [new] [confirm]\033[0m   change current user's password\n\
+\033[36mpassword / passwd [--root] [new] [confirm]\033[0m change password (--root: root password, sudo only)\n\
 \033[36mhistory\033[0m                 show command history\n\
 \033[36mecho [text]\033[0m             print text\n\
 \033[36mwhoami\033[0m                  print current user\n\

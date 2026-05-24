@@ -62,6 +62,7 @@ poweroff
 ## Commands
 
 - `sudo [cmd] [arg]` run a command with root privileges
+- Short flags use `-[letter]`, long flags use `--[name]`; unknown flags are rejected.
 
 Navigation
 - `cd [arg]` change directory
@@ -96,7 +97,7 @@ Mount
 - `mount` / `mnt [path] [name.ext]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` (sudo only)
 
 System
-- `password` / `passwd [new] [confirm]` change current user password
+- `password` / `passwd [--root] [new] [confirm]` change password (`--root` changes root password, sudo only)
 - `history` show command history
 - `echo [text]` print text
 - `whoami` print current user

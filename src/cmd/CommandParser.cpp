@@ -47,8 +47,10 @@ CommandParams ParseCommandLine(const std::string& input) {
             }
         } else if (!literalMode && temp == "--") {
             literalMode = true;
+        } else if (!literalMode && temp.starts_with("--")) {
+            result.longFlags.emplace_back(temp.substr(2));
         } else if (!literalMode && temp[0] == '-') {
-            result.flags.emplace_back(std::move(temp));
+            result.shortFlags += temp.substr(1);
         } else {
             result.args.emplace_back(std::move(temp));
         }

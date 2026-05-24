@@ -15,7 +15,7 @@
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
 
-bool ChangePassword(const std::string& username, const std::string& password) {
+void ChangePassword(const std::string& username, const std::string& password) {
     Node* etc = GetChild(FS::root, "etc", "dir");
     if (!etc)
         etc = NewChild(FS::root, "etc", "dir");
@@ -55,7 +55,6 @@ bool ChangePassword(const std::string& username, const std::string& password) {
     }
 
     loginPass->value = std::move(output);
-    return true;
 }
 
 PassReturn GetCorrectPass(const std::string& userName) {
