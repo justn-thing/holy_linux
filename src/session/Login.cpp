@@ -30,28 +30,28 @@ void ChangePassword(const std::string& username, const std::string& password) {
 
     bool changed = false;
     for (const std::string& user : users) {
-        size_t index = user.find(' ');
+        size_t index = user.find('\0');
         if (index == std::string::npos)
             index = user.size();
         if (const std::string_view name(user.data(), index);
             name == username) {
             output += username;
-            output += " ";
+            output += '\0';
             output += password;
-            output += "\n";
+            output += '\n';
             changed = true;
             continue;
         }
 
         output += user;
-        output += "\n";
+        output += '\n';
     }
 
     if (!changed) {
         output += username;
-        output += " ";
+        output += '\0';
         output += password;
-        output += "\n";
+        output += '\n';
     }
 
     loginPass->value = std::move(output);
@@ -73,7 +73,7 @@ PassReturn GetCorrectPass(const std::string& userName) {
     }
 
     for (const std::string& user : split(loginPass->value, '\n')) {
-        if (const size_t index = user.find(' ');
+        if (const size_t index = user.find('\0');
             index != std::string::npos && index + 1 < user.size() && user.compare(0, index, userName) == 0) {
             passReturn.success = true;
             passReturn.pass = user.substr(index + 1);
