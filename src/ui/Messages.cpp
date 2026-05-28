@@ -53,8 +53,6 @@ namespace msg {
     constexpr std::string_view unknown_flag = "Unknown flag.\n";
 }
 
-void alert(const std::string_view message, const std::string_view color, const bool startup, const std::string& opt) {
-    if (startup) return;
-
+void alert(const std::string_view message, const std::string_view color, const std::string& opt) {
     std::cout << color << opt << message << stx::reset;
 }

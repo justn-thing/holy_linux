@@ -52,4 +52,4 @@ namespace msg {
     extern const std::string_view unknown_flag;
 }
 
-void alert(std::string_view message, std::string_view color, bool startup = false, const std::string& opt = "");
+void alert(std::string_view message, std::string_view color, const std::string& opt = "");

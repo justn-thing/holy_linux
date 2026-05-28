@@ -38,7 +38,7 @@ int BootStartupConfig() {
     if (const Node* startupConfig = GetAbsolute("/boot/startupConfig.cmd")) {
         for (const std::string& line : split(startupConfig->value, '\n')) {
             CommandParams params = ParseCommandLine(line);
-            Execute(params, true); // ignores poweroff and reboot
+            Execute(params); // ignores poweroff and reboot
         }
     } else {
         alert(msg::startupcfg_not_exist, stx::yellow);

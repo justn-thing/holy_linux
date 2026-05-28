@@ -24,7 +24,7 @@
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
 
-int Execute(CommandParams& param, const bool startupConfigPhase) {
+int Execute(CommandParams& param) {
     if (param.cmd == "cd") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
@@ -38,14 +38,14 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             else
                 FS::current = target;
         } else
-            alert(msg::dir_not_found, stx::red, startupConfigPhase);
+            alert(msg::dir_not_found, stx::red);
     } else if (param.cmd == "dir" || param.cmd == "ls") {
         if (param.args.empty())
             DisplayDir(FS::current);
         else if (const Node* target = GetAbsolute(param.args[0]))
             DisplayDir(target);
         else
-            alert(msg::dir_not_found, stx::red, startupConfigPhase);
+            alert(msg::dir_not_found, stx::red);
     } else if (param.cmd == "mkdir") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
@@ -75,7 +75,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             target && target->type == "dir")
             NewChild(target, name, "dir");
         else
-            alert(msg::invalid_path, stx::red, startupConfigPhase);
+            alert(msg::invalid_path, stx::red);
     } else if (param.cmd == "rmdir") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
@@ -137,7 +137,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             target && target->type == "dir")
             NewChild(target, name, type);
         else
-            alert(msg::invalid_path, stx::red, startupConfigPhase);
+            alert(msg::invalid_path, stx::red);
     } else if (param.cmd == "rmfile" || param.cmd == "rm") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
@@ -196,7 +196,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
             }
 
             if (GetChild(target->parent, name, type))
-                alert(msg::file_alr_exists, stx::yellow, startupConfigPhase);
+                alert(msg::file_alr_exists, stx::yellow);
             else {
                 target->name = name;
                 target->type = type;
@@ -277,7 +277,7 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
         if (target->type == "cmd") {
             for (const std::string& line : split(target->value, '\n')) {
                 CommandParams params = ParseCommandLine(line);
-                if (const int& returnCode = Execute(params, true); returnCode != 0)
+                if (const int& returnCode = Execute(params); returnCode != 0)
                     return returnCode;
             }
         } else if (target->type == "py") {
@@ -685,13 +685,13 @@ int Execute(CommandParams& param, const bool startupConfigPhase) {
 
         if (GetChild(bin, param.cmd, "exe")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".exe");
-            return Execute(line, startupConfigPhase);
+            return Execute(line);
         } if (GetChild(bin, param.cmd, "cmd")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".cmd");
-            return Execute(line, startupConfigPhase);
+            return Execute(line);
         } if (GetChild(bin, param.cmd, "py")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".py");
-            return Execute(line, startupConfigPhase);
+            return Execute(line);
         }
 
         alert(msg::unknown_cmd, stx::yellow);

@@ -2,4 +2,4 @@
 
 #include "CommandParams.hpp"
 
-int Execute(CommandParams& param, bool startupConfigPhase = false);
+int Execute(CommandParams& param);
