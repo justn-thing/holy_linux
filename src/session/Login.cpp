@@ -97,7 +97,7 @@ bool LoginRoot() {
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
                 ChangePassword("//root//", newPass);
-                SData::root = true;
+                SData::user.root = true;
                 break;
             }
             alert(msg::pass_set_fail, stx::yellow);
@@ -110,7 +110,7 @@ bool LoginRoot() {
         std::getline(std::cin, enteredPass);
 
         if (enteredPass == pass) {
-            SData::root = true;
+            SData::user.root = true;
             return true;
         }
 
@@ -187,7 +187,7 @@ int Login() {
             std::getline(std::cin, confirmPass);
             if (newPass == confirmPass && !newPass.empty()) {
                 ChangePassword(userName, newPass);
-                SData::username = userName;
+                SData::user.name = userName;
                 FS::current = GetAbsolute("/home/" + userName);
                 return 0;
             }
@@ -200,7 +200,7 @@ int Login() {
         std::getline(std::cin, enteredPass);
 
         if (enteredPass == pass) {
-            SData::username = userName;
+            SData::user.name = userName;
             FS::current = GetAbsolute("/home/" + userName);
             return 0;
         }

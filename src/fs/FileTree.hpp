@@ -24,9 +24,9 @@ short RemoveChild(const Node* parent, const std::string& name, const std::string
 void DisplayDir(const Node* parent);
 void LockNode(Node* node, bool lock, bool recursive = false);
 size_t GetFileSize(const Node* node);
-void CopyNode(const Node* from, Node* to, bool sudo);
+bool CopyNode(const Node* from, Node* to, bool sudo);
 bool ContainsLockedNode(const Node* node);
-void MoveNode(const Node* from, Node* to, bool sudo);
+bool MoveNode(const Node* from, Node* to, bool sudo);
 void PrintTree(const Node* node, int indent = 0);
 void FindNodes(Node* ancestor, const std::string& name, const std::string& type, std::vector<Node*>& result,
                              bool anyType = false);

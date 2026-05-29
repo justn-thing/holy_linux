@@ -2,4 +2,4 @@
 
 #include "CommandParams.hpp"
 
-int Execute(CommandParams& param);
+int ExecuteCmdLine(CommandParams& param);

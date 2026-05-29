@@ -3,9 +3,10 @@
 #include <filesystem>
 
 namespace SData {
-    std::string username = "//root//";
-    bool root = true;
-    std::vector<std::string> cmdHistory;
+    CurrentUser user;
+
+    bool redirecting = false;
+    Node* redirectTarget = nullptr;
 
     std::filesystem::path selfParentPath;
 
@@ -21,11 +22,5 @@ namespace SData {
 
     namespace Export {
         std::filesystem::path selfDir;
-    }
-
-    void Reset() {
-        username = "//root//";
-        root = true;
-        cmdHistory.clear();
     }
 }

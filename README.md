@@ -65,6 +65,11 @@ poweroff
 - `sudo [command] [args]` run a command with root privileges
 - Short flags use `-[flag]`, long flags use `--[flag]`; unknown flags are rejected.
 - Placeholder guide: `[path]` is a virtual filesystem path, `[file]` is a virtual file path, and `[hostFile]` is an external file path.
+- `cmd1 && cmd2` runs `cmd2` only if `cmd1` succeeds.
+- `cmd1 || cmd2` runs `cmd2` only if `cmd1` fails.
+- `cmd > [file]` overwrites a virtual file with command output.
+- `cmd >> [file]` appends command output to a virtual file.
+- `// text` is ignored as a full-line `.cmd` comment.
 
 Navigation
 - `cd [path]` change directory
@@ -94,6 +99,7 @@ Execution
 - `execute` / `exec [file]` run `.cmd`, `.py`, or `.exe`
 - `compile` / `comp [file]` compile `.cpp` to `.exe` (requires `g++`)
 - `[command]` run matching `.exe`, `.cmd`, or `.py` package from `/bin`
+- `.cmd` files support full-line comments beginning with `//`; inline comments are not supported.
 
 Import / Export
 - `mount` / `mnt [hostFile]` import external `.txt`/`.cmd`/`.py`/`.cpp` into `/mnt` using its external filename (sudo only)

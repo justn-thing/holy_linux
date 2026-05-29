@@ -38,6 +38,9 @@ namespace page {
 \033[90mTip:\033[0m use \033[33msudo [command] [args]\033[0m for admin-only commands\n\
 \033[90mFlags:\033[0m short flags use \033[33m-[flag]\033[0m, long flags use \033[33m--[flag]\033[0m\n\
 \033[90mArgs:\033[0m [path] = virtual path, [file] = virtual file, [hostFile] = external file\n\
+\033[90mOperators:\033[0m \033[33mcmd1 && cmd2\033[0m runs cmd2 after success, \033[33mcmd1 || cmd2\033[0m runs cmd2 after failure\n\
+\033[90mRedirect:\033[0m \033[33mcmd > [file]\033[0m overwrites command output, \033[33mcmd >> [file]\033[0m appends command output\n\
+\033[90mComments:\033[0m \033[33m// text\033[0m is ignored as a full-line .cmd comment\n\
 \n\
 \033[33mNavigation\033[0m\n\
 \033[36mcd [path]\033[0m               change directory\n\
@@ -68,6 +71,7 @@ namespace page {
 \033[36mexecute / exec [file]\033[0m      run .cmd, .py, or .exe\n\
 \033[36mcompile / comp [file]\033[0m      compile .cpp into .exe (g++ required)\n\
 \033[36m[command]\033[0m                  run package from /bin if found\n\
+\033[90m.cmd:\033[0m lines beginning with \033[33m//\033[0m are comments; inline comments are not supported\n\
 \n\
 \033[33mImport / Export\033[0m\n\
 \033[36mmount / mnt [hostFile]\033[0m  mount .txt/.cmd/.py/.cpp to /mnt (sudo only)\n\

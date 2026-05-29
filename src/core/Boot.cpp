@@ -14,7 +14,7 @@
 
 #include "../cmd/CommandParser.hpp"
 #include "../cmd/Execution.hpp"
-#include "../core/ReturnCodes.hpp"
+#include "../util/ReturnCodes.hpp"
 #include "../core/Run.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
@@ -38,7 +38,7 @@ int BootStartupConfig() {
     if (const Node* startupConfig = GetAbsolute("/boot/startupConfig.cmd")) {
         for (const std::string& line : split(startupConfig->value, '\n')) {
             CommandParams params = ParseCommandLine(line);
-            Execute(params); // ignores poweroff and reboot
+            ExecuteCmdLine(params); // ignores poweroff and reboot
         }
     } else {
         alert(msg::startupcfg_not_exist, stx::yellow);
@@ -119,7 +119,7 @@ int Boot() {
 
     BootStartupConfig();
 
-    SData::root = false;
+    SData::user.root = false;
     stx::ClearConsole();
 
     if (Login() == -1) return -1;
@@ -142,7 +142,7 @@ int Post(char* args[]) {
         if (const int& returnCode = Boot(); returnCode != Reboot)
             return returnCode;
 
-        SData::Reset();
+        SData::user = CurrentUser {};
         FS::Reset();
         stx::ClearConsole();
     }

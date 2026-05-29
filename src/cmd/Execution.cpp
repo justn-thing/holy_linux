@@ -8,13 +8,12 @@
 #include <format>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <string>
 #include <utility>
 
 #include "../apps/HolyVim.hpp"
 #include "../cmd/CommandParser.hpp"
-#include "../core/ReturnCodes.hpp"
+#include "../util/ReturnCodes.hpp"
 #include "../fs/FileSaving.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
@@ -24,32 +23,37 @@
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
 
-int Execute(CommandParams& param) {
+int ExecuteCmd(CommandParams& param) {
     if (param.cmd == "cd") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (Node* target = GetAbsolute(param.args[0]);
             target && target->type == "dir") {
-            if (target->metadata.sudo && !param.sudo)
+            if (target->metadata.sudo && !param.sudo) {
                 alert(msg::not_sudo, stx::yellow);
-            else
+                return 1;
+            } else
                 FS::current = target;
-        } else
+        } else {
             alert(msg::dir_not_found, stx::red);
+            return 1;
+        }
     } else if (param.cmd == "dir" || param.cmd == "ls") {
         if (param.args.empty())
             DisplayDir(FS::current);
         else if (const Node* target = GetAbsolute(param.args[0]))
             DisplayDir(target);
-        else
+        else {
             alert(msg::dir_not_found, stx::red);
+            return 1;
+        }
     } else if (param.cmd == "mkdir") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const size_t index = param.args[0].rfind('/');
@@ -60,7 +64,7 @@ int Execute(CommandParams& param) {
             name = param.args[0];
         else if (index == param.args[0].size() - 1) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         } else {
             path = param.args[0].substr(0, index + 1);
             name = param.args[0].substr(index + 1);
@@ -68,18 +72,23 @@ int Execute(CommandParams& param) {
 
         if (name.contains('.') || name.empty()) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (Node* target = GetAbsolute(path);
-            target && target->type == "dir")
-            NewChild(target, name, "dir");
-        else
+            target && target->type == "dir") {
+            if (!NewChild(target, name, "dir")) {
+                alert(msg::dir_alr_exists, stx::yellow);
+                return 1;
+            }
+        } else {
             alert(msg::invalid_path, stx::red);
+            return 1;
+        }
     } else if (param.cmd == "rmdir") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         bool recursive = false;
@@ -87,26 +96,31 @@ int Execute(CommandParams& param) {
             if (flag == 'r') recursive = true;
             else {
                 alert(msg::unknown_flag, stx::yellow);
-                return 0;
+                return 1;
             }
         }
 
-        if (const Node* target = GetAbsolute(param.args[0]); !target)
+        if (const Node* target = GetAbsolute(param.args[0]); !target) {
             alert(msg::dir_not_found, stx::red);
-        else if (target == FS::root)
+            return 1;
+        } else if (target == FS::root) {
             alert(msg::cant_remove_root, stx::yellow);
-        else if (target == FS::current || (recursive && IsAncestor(target, FS::current)))
+            return 1;
+        } else if (target == FS::current || (recursive && IsAncestor(target, FS::current))) {
             alert(msg::cant_remove_self, stx::yellow);
-        else if (ContainsLockedNode(target) && !param.sudo)
+            return 1;
+        } else if (ContainsLockedNode(target) && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-        else if (target->type != "dir")
+            return 1;
+        } else if (target->type != "dir") {
             alert(msg::rmdir_file, stx::yellow);
-        else
-            RemoveNode(target, recursive);
+            return 1;
+        } else if (!RemoveNode(target, recursive))
+            return 1;
     } else if (param.cmd == "mkfile" || param.cmd == "touch") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const size_t index = param.args[0].rfind('/');
@@ -130,52 +144,63 @@ int Execute(CommandParams& param) {
         }
         if (name.contains('.') || name.empty() || type.empty()) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (Node* target = GetAbsolute(path);
-            target && target->type == "dir")
-            NewChild(target, name, type);
-        else
+            target && target->type == "dir") {
+            if (!NewChild(target, name, type)) {
+                alert(msg::file_alr_exists, stx::yellow);
+                return 1;
+            }
+        } else {
             alert(msg::invalid_path, stx::red);
+            return 1;
+        }
     } else if (param.cmd == "rmfile" || param.cmd == "rm") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
-        if (const Node* target = GetAbsolute(param.args[0]); !target)
+        if (const Node* target = GetAbsolute(param.args[0]); !target) {
             alert(msg::file_not_found, stx::red);
-        else if (target->type == "dir")
+            return 1;
+        } else if (target->type == "dir") {
             alert(msg::rmfile_dir, stx::yellow);
-        else if (target->metadata.sudo && !param.sudo)
+            return 1;
+        } else if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-        else
-            RemoveNode(target);
+            return 1;
+        } else if (!RemoveNode(target))
+            return 1;
     } else if (param.cmd == "rename") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
         if (param.args[1].contains('/')) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         }
 
-        if (Node* target = GetAbsolute(param.args[0]); !target)
+        if (Node* target = GetAbsolute(param.args[0]); !target) {
             alert(msg::file_not_found, stx::red);
-        else if (target == FS::root)
+            return 1;
+        } else if (target == FS::root) {
             alert(msg::cant_rename_root, stx::yellow);
-        else if (target->metadata.sudo && !param.sudo)
+            return 1;
+        } else if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-        else {
+            return 1;
+        } else {
             const size_t index = param.args[1].rfind('.');
             std::string name;
             std::string type;
 
             if (target->type == "dir" && index != std::string::npos) {
                 alert(msg::invalid_file_type, stx::yellow);
-                return 0;
+                return 1;
             }
 
             if (index == std::string::npos) {
@@ -186,18 +211,19 @@ int Execute(CommandParams& param) {
                 type = param.args[1].substr(index + 1);
                 if (type == "dir") {
                     alert(msg::invalid_file_type, stx::yellow);
-                    return 0;
+                    return 1;
                 }
             }
 
             if (name.contains('.') || name.empty() || type.empty()) {
                 alert(msg::invalid_arg, stx::yellow);
-                return 0;
+                return 1;
             }
 
-            if (GetChild(target->parent, name, type))
+            if (GetChild(target->parent, name, type)) {
                 alert(msg::file_alr_exists, stx::yellow);
-            else {
+                return 1;
+            } else {
                 target->name = name;
                 target->type = type;
             }
@@ -205,18 +231,18 @@ int Execute(CommandParams& param) {
     } else if (param.cmd == "write" || param.cmd == "wr" || param.cmd == "edit") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
-            return 0;
+            return 1;
         }
 
         if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         bool allowed = false;
@@ -226,25 +252,25 @@ int Execute(CommandParams& param) {
 
         if (!allowed) {
             alert(msg::invalid_file_type, stx::yellow);
-            return 0;
+            return 1;
         }
 
         HolyVim(target, param.cmd);
     } else if (param.cmd == "read" || param.cmd == "cat") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
-            return 0;
+            return 1;
         }
 
         if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         bool allowed = false;
@@ -254,30 +280,36 @@ int Execute(CommandParams& param) {
 
         if (!allowed) {
             alert(msg::invalid_file_type, stx::yellow);
-            return 0;
+            return 1;
         }
 
-        std::cout << target->value << '\n';
+        msg::cout << target->value << '\n';
     } else if (param.cmd == "execute" || param.cmd == "exec") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
-            return 0;
+            return 1;
         }
         if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (target->type == "cmd") {
+            if (param.executionSrcNode && target == param.executionSrcNode) {
+                alert(msg::cmd_recursion, stx::red);
+                return 1;
+            }
+
             for (const std::string& line : split(target->value, '\n')) {
                 CommandParams params = ParseCommandLine(line);
-                if (const int& returnCode = Execute(params); returnCode != 0)
+                params.executionSrcNode = target;
+                if (const int& returnCode = ExecuteCmdLine(params); returnCode != 0)
                     return returnCode;
             }
         } else if (target->type == "py") {
@@ -287,42 +319,48 @@ int Execute(CommandParams& param) {
 
 #ifdef _WIN32
             const std::wstring runCmd = L"py \"" + SData::RAM::py.wstring() + L"\"";
-            _wsystem(runCmd.c_str());
+            const int runCode = _wsystem(runCmd.c_str());
 #else
             const std::string runCmd = "python3 \"" + SData::RAM::py.string() + "\"";
-            system(runCmd.c_str());
+            const int runCode = system(runCmd.c_str());
 #endif
 
             std::ofstream fileErase(SData::RAM::py);
             fileErase.close();
+            if (runCode != 0)
+                return 1;
         } else if (target->type == "exe") {
             std::ofstream fileout(SData::RAM::exe, std::ios::binary);
             fileout << target->value;
             fileout.close();
 #ifdef _WIN32
             const std::wstring runCmd = L"\"" + SData::RAM::exe.wstring() + L"\"";
-            _wsystem(runCmd.c_str());
+            const int runCode = _wsystem(runCmd.c_str());
 #else
             const std::string runCmd = "chmod +x \"" + SData::RAM::exe.string() + "\" && \"" +
                                        SData::RAM::exe.string() + "\"";
-            system(runCmd.c_str());
+            const int runCode = system(runCmd.c_str());
 #endif
-        } else
+            if (runCode != 0)
+                return 1;
+        } else {
             alert(msg::invalid_file_type, stx::yellow);
+            return 1;
+        }
     } else if (param.cmd == "compile" || param.cmd == "comp") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
-            return 0;
+            return 1;
         }
         if (target->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (target->type == "cpp") {
@@ -348,7 +386,7 @@ int Execute(CommandParams& param) {
 #endif
                 != 0) {
                 alert(msg::fail_compile, stx::red);
-                return 0;
+                return 1;
             }
 
             std::ofstream fileErase(SData::RAM::cpp);
@@ -357,7 +395,7 @@ int Execute(CommandParams& param) {
             std::ifstream filein(compiledPath, std::ios::binary);
             if (!filein.is_open()) {
                 alert(msg::fail_compile, stx::red);
-                return 0;
+                return 1;
             }
             auto output = std::string(std::istreambuf_iterator(filein), std::istreambuf_iterator<char>());
             filein.close();
@@ -366,30 +404,32 @@ int Execute(CommandParams& param) {
             RemoveChild(target->parent, target->name, "exe");
             Node* exeFile = NewChild(target->parent, target->name, "exe");
             exeFile->value = std::move(output);
-        } else
+        } else {
             alert(msg::invalid_file_type, stx::yellow);
+            return 1;
+        }
     } else if (param.cmd == "mount" || param.cmd == "mnt") {
         if (!param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const std::string fileName = std::filesystem::path(param.args[0]).filename().string();
         const size_t index = fileName.rfind('.');
         if (index == std::string::npos) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const std::string name = fileName.substr(0, index);
         const std::string type = fileName.substr(index + 1);
         if (name.contains('.') || name.empty() || type.empty()) {
             alert(msg::invalid_arg, stx::yellow);
-            return 0;
+            return 1;
         }
 
         bool allowed = false;
@@ -402,13 +442,13 @@ int Execute(CommandParams& param) {
         }
         if (!allowed) {
             alert(msg::invalid_file_type, stx::yellow);
-            return 0;
+            return 1;
         }
 
         std::ifstream filein(param.args[0], std::ios::binary);
         if (!filein.is_open()) {
             alert(msg::fail_mount, stx::red);
-            return 0;
+            return 1;
         }
 
         Node* mount = GetChild(FS::root, "mnt", "dir");
@@ -424,25 +464,28 @@ int Execute(CommandParams& param) {
             filein.read(data.data(), static_cast<std::streamsize>(data.size()));
 
             mountedFile->value = std::move(data);
-        } else alert(msg::file_alr_exists, stx::yellow);
+        } else {
+            alert(msg::file_alr_exists, stx::yellow);
+            return 1;
+        }
     } else if (param.cmd == "export") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
         if (!param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
         if (target->type == "dir") {
             alert(msg::invalid_file_type, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const std::filesystem::path newFile = SData::Export::selfDir / (target->name + '.' + target->type);
@@ -450,85 +493,87 @@ int Execute(CommandParams& param) {
         std::ofstream fileout(newFile, std::ios::binary);
         if (!fileout.is_open()) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
 
         fileout.write(target->value.data(), static_cast<std::streamsize>(target->value.size()));
     } else if (param.cmd == "copy" || param.cmd == "cp") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const Node* fromNode = GetAbsolute(param.args[0]);
         if (!fromNode) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* toNode = GetAbsolute(param.args[1]);
         if (!toNode) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
         if (toNode->type != "dir") {
             alert(msg::copy_into_file, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (IsAncestor(fromNode, toNode)) {
             alert(msg::copy_into_descendant, stx::yellow);
-            return 0;
+            return 1;
         }
 
-        CopyNode(fromNode, toNode, param.sudo);
+        if (!CopyNode(fromNode, toNode, param.sudo))
+            return 1;
     } else if (param.cmd == "move" || param.cmd == "mv") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         const Node* fromNode = GetAbsolute(param.args[0]);
         if (!fromNode) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
         if (fromNode == FS::root) {
             alert(msg::cant_move_root, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* toNode = GetAbsolute(param.args[1]);
         if (!toNode) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
         if (toNode->type != "dir") {
             alert(msg::move_into_file, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (IsAncestor(fromNode, toNode)) {
             alert(msg::move_into_descendant, stx::yellow);
-            return 0;
+            return 1;
         }
 
-        MoveNode(fromNode, toNode, param.sudo);
+        if (!MoveNode(fromNode, toNode, param.sudo))
+            return 1;
     } else if (param.cmd == "lock" || param.cmd == "unlock") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         if (!param.sudo) {
             alert(msg::not_sudo, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* target = GetAbsolute(param.args[0]);
         if (!target) {
             alert(msg::file_not_found, stx::red);
-            return 0;
+            return 1;
         }
 
         bool recursive = false;
@@ -536,7 +581,7 @@ int Execute(CommandParams& param) {
             if (flag == 'r') recursive = true;
             else {
                 alert(msg::unknown_flag, stx::yellow);
-                return 0;
+                return 1;
             }
         }
 
@@ -544,7 +589,7 @@ int Execute(CommandParams& param) {
     } else if (param.cmd == "password" || param.cmd == "passwd") {
         if (param.args.size() < 2) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         bool root = false;
@@ -553,47 +598,48 @@ int Execute(CommandParams& param) {
                 if (param.sudo) root = true;
                 else {
                     alert(msg::not_sudo, stx::yellow);
-                    return 0;
+                    return 1;
                 }
             }
             else {
                 alert(msg::unknown_flag, stx::yellow);
-                return 0;
+                return 1;
             }
         }
 
-        if (param.args[0].empty() || param.args[0] != param.args[1])
+        if (param.args[0].empty() || param.args[0] != param.args[1]) {
             alert(msg::pass_set_fail, stx::yellow);
-        else
-            ChangePassword(root ? "//root//" : SData::username, param.args[0]);
+            return 1;
+        } else
+            ChangePassword(root ? "//root//" : SData::user.name, param.args[0]);
     } else if (param.cmd == "history") {
-        for (const std::string& cmd : SData::cmdHistory) {
-            std::cout << cmd << '\n';
+        for (const std::string& cmd : SData::user.cmdHistory) {
+            msg::cout << cmd << '\n';
         }
     } else if (param.cmd == "echo") {
         for (const std::string& word : param.args)
-            std::cout << word << " ";
-        std::cout << '\n';
+            msg::cout << word << " ";
+        msg::cout << '\n';
     } else if (param.cmd == "help") {
-        std::cout << page::help << '\n';
+        msg::cout << page::help << '\n';
     } else if (param.cmd == "clear" || param.cmd == "cls") {
         stx::ClearConsole();
     } else if (param.cmd == "fetch") {
-        std::cout << page::fetch << '\n';
+        msg::cout << page::fetch << '\n';
     } else if (param.cmd == "pwd") {
-        std::cout << GetPath(FS::current) << '\n';
+        msg::cout << GetPath(FS::current) << '\n';
     } else if (param.cmd == "whoami") {
-        std::cout << SData::username << '\n';
+        msg::cout << SData::user.name << '\n';
     } else if (param.cmd == "date") {
         const auto now = std::chrono::system_clock::now();
         const std::time_t date = std::chrono::system_clock::to_time_t(now);
 
-        std::cout << std::put_time(std::localtime(&date), "%d/%m/%Y") << '\n';
+        msg::cout << std::put_time(std::localtime(&date), "%d/%m/%Y") << '\n';
     } else if (param.cmd == "time") {
         const auto now = std::chrono::system_clock::now();
         const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
-        std::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << '\n';
+        msg::cout << std::put_time(std::localtime(&time), "%H:%M:%S") << '\n';
     } else if (param.cmd == "du") {
         const Node* node;
         if (param.args.empty()) {
@@ -603,7 +649,7 @@ int Execute(CommandParams& param) {
 
             if (!node) {
                 alert(msg::invalid_path, stx::red);
-                return 0;
+                return 1;
             }
         }
 
@@ -611,7 +657,7 @@ int Execute(CommandParams& param) {
         double kB = static_cast<double>(bytes) / 1024.0;
         double MB = kB / 1024.0;
         double GB = MB / 1024.0;
-        std::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << '\n';
+        msg::cout << std::format("{:.2f} GiB / {:.2f} MiB / {:.2f} KiB / {} B", GB, MB, kB, bytes) << '\n';
     } else if (param.cmd == "tree") {
         if (param.args.empty()) {
             PrintTree(FS::current);
@@ -620,12 +666,14 @@ int Execute(CommandParams& param) {
 
         if (const Node* target = GetAbsolute(param.args[0]))
             PrintTree(target);
-        else
+        else {
             alert(msg::invalid_path, stx::red);
+            return 1;
+        }
     } else if (param.cmd == "find") {
         if (param.args.empty()) {
             alert(msg::arg_missing, stx::yellow);
-            return 0;
+            return 1;
         }
 
         Node* ancestor;
@@ -635,7 +683,7 @@ int Execute(CommandParams& param) {
             ancestor = GetAbsolute(param.args[1]);
             if (!ancestor) {
                 alert(msg::invalid_path, stx::yellow);
-                return 0;
+                return 1;
             }
         }
 
@@ -648,11 +696,11 @@ int Execute(CommandParams& param) {
 
         if (result.empty()) {
             alert(msg::file_not_found, stx::yellow);
-            return 0;
+            return 1;
         }
 
         for (const Node* node : result) {
-            std::cout << GetPath(node) << '\n';
+            msg::cout << GetPath(node) << '\n';
         }
     } else if (param.cmd == "poweroff" || param.cmd == "reboot") {
         alert(msg::begin_poweroff, stx::green);
@@ -664,7 +712,7 @@ int Execute(CommandParams& param) {
             if (flag == 'd') discardChanges = true;
             else {
                 alert(msg::unknown_flag, stx::yellow);
-                return 0;
+                return 1;
             }
         }
 
@@ -672,10 +720,13 @@ int Execute(CommandParams& param) {
 
         alert(msg::begin_save_fs, stx::green);
         if (const bool saveSuccess = SaveFileSystem();
-            !saveSuccess)
+            !saveSuccess) {
             alert(msg::fail_save_filesystem, stx::red);
+        }
 
         return returnCode;
+    } else if (param.cmd == "//") {
+        return 0;
     } else if (!param.cmd.empty()) {
         const Node* bin = GetChild(FS::root, "bin", "dir");
         if (!bin)
@@ -685,16 +736,67 @@ int Execute(CommandParams& param) {
 
         if (GetChild(bin, param.cmd, "exe")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".exe");
-            return Execute(line);
+            return ExecuteCmdLine(line);
         } if (GetChild(bin, param.cmd, "cmd")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".cmd");
-            return Execute(line);
+            return ExecuteCmdLine(line);
         } if (GetChild(bin, param.cmd, "py")) {
             CommandParams line = ParseCommandLine(exec + param.cmd + ".py");
-            return Execute(line);
+            return ExecuteCmdLine(line);
         }
 
         alert(msg::unknown_cmd, stx::yellow);
+        return 1;
     }
     return 0;
+}
+
+int ExecuteCmdLine(CommandParams& param) {
+    if (param.redirectMode == RedirectMode::Overwrite || param.redirectMode == RedirectMode::Append) {
+        if (!param.redirectTarget) {
+            alert(msg::file_not_found, stx::red);
+            return 1;
+        }
+
+        if (param.redirectTarget->metadata.sudo && !param.sudo) {
+            alert(msg::not_sudo, stx::yellow);
+            return 1;
+        }
+
+        if (param.redirectTarget->type == "dir") {
+            alert(msg::invalid_file_type, stx::yellow);
+            return 1;
+        }
+
+        SData::redirecting = true;
+        SData::redirectTarget = param.redirectTarget;
+
+        if (param.redirectMode == RedirectMode::Overwrite)
+            SData::redirectTarget->value.clear();
+    } else {
+        SData::redirecting = false;
+        SData::redirectTarget = nullptr;
+    }
+
+    const int returnCode = ExecuteCmd(param);
+    if (returnCode == Poweroff || returnCode == Reboot) {
+        SData::redirecting = false;
+        SData::redirectTarget = nullptr;
+        return returnCode;
+    }
+
+    if (((param.redirectMode == RedirectMode::And && returnCode == 0) ||
+        (param.redirectMode == RedirectMode::Or && returnCode == 1)) &&
+        param.redirectCmd) {
+        const int otherReturnCode = ExecuteCmdLine(*param.redirectCmd);
+
+        SData::redirecting = false;
+        SData::redirectTarget = nullptr;
+        return otherReturnCode;
+    }
+
+    SData::redirecting = false;
+    SData::redirectTarget = nullptr;
+
+    return returnCode;
 }

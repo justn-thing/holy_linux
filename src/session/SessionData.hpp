@@ -4,10 +4,20 @@
 #include <string>
 #include <vector>
 
+#include "../fs/NodeStruct.hpp"
+
+class CurrentUser {
+public:
+    std::string name = "//root//";
+    bool root = true;
+    std::vector<std::string> cmdHistory;
+};
+
 namespace SData {
-    extern std::string username;
-    extern bool root;
-    extern std::vector<std::string> cmdHistory;
+    extern CurrentUser user;
+
+    extern bool redirecting;
+    extern Node* redirectTarget;
 
     extern std::filesystem::path selfParentPath;
 
@@ -24,6 +34,4 @@ namespace SData {
     namespace Export {
         extern std::filesystem::path selfDir;
     }
-
-    void Reset();
 }

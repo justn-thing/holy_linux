@@ -8,11 +8,12 @@
 #include "../fs/FileTree.hpp"
 #include "../session/SessionData.hpp"
 #include "../ui/Syntax.hpp"
+#include "../util/ReturnCodes.hpp"
 
 void PrintShellPrompt() {
     std::string buffer;
     buffer += stx::cyan;
-    buffer += SData::username;
+    buffer += SData::user.name;
     buffer += stx::yellow;
     buffer += "@holy-linux ";
     buffer += stx::gray;
@@ -36,10 +37,11 @@ int Run() {
         std::getline(std::cin, input);
 
         CommandParams params = ParseCommandLine(input);
-        if (const int& returnCode = Execute(params); returnCode != 0)
+        if (const int returnCode = ExecuteCmdLine(params);
+            returnCode == Poweroff || returnCode == Reboot)
             return returnCode;
 
         if (!input.empty())
-            SData::cmdHistory.emplace_back(input);
+            SData::user.cmdHistory.emplace_back(input);
     }
 }

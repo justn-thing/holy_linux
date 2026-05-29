@@ -1,7 +1,6 @@
 #include "FileTree.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <vector>
 
 #include "../session/SessionData.hpp"
@@ -46,8 +45,8 @@ std::string GetPath(const Node* current) {
 std::string GetCosmeticPath(const Node* current) {
     std::string path = GetPath(current);
 
-    if (path.starts_with("/home/" + SData::username))
-        path = "~" + path.substr(6 + SData::username.length());
+    if (path.starts_with("/home/" + SData::user.name))
+        path = "~" + path.substr(6 + SData::user.name.length());
 
     return path;
 }
@@ -62,7 +61,7 @@ Node* GetAbsolute(const std::string& arg, Node* current) {
         const Node* home = GetChild(FS::root, "home", "dir");
         if (!home)
             return nullptr;
-        Node* user = GetChild(home, SData::username, "dir");
+        Node* user = GetChild(home, SData::user.name, "dir");
         if (!user)
             return nullptr;
 
@@ -187,7 +186,7 @@ void DisplayDir(const Node* parent) {
 
         buffer += '\n';
     }
-    std::cout << buffer;
+    msg::cout << buffer;
 }
 
 void PrintTreeChildren(const Node* node, const std::string& prefix) {
@@ -199,7 +198,7 @@ void PrintTreeChildren(const Node* node, const std::string& prefix) {
         buffer += isLast ? "└── " : "├── ";
         AddTreeNodeName(buffer, child);
         buffer += '\n';
-        std::cout << buffer;
+        msg::cout << buffer;
 
         PrintTreeChildren(child, prefix + (isLast ? "    " : "│   "));
     }
@@ -242,22 +241,25 @@ size_t GetFileSize(const Node* node) {
     return headerSize + miscSize + payloadSize;
 }
 
-void CopyNode(const Node* from, Node* to, const bool sudo) {
+bool CopyNode(const Node* from, Node* to, const bool sudo) {
     if ((from->metadata.sudo || to->metadata.sudo) && !sudo) {
         alert(msg::not_sudo, stx::yellow);
-        return;
+        return false;
     }
 
     Node* newNode = NewChild(to, from->name, from->type, from->metadata.sudo, from->metadata.misc);
     if (newNode == nullptr) {
         alert(msg::file_alr_exists, stx::red);
-        return;
+        return false;
     }
     newNode->value = from->value;
 
     for (const std::unique_ptr<Node>& child : from->children) {
-        CopyNode(child.get(), newNode, sudo);
+        if (!CopyNode(child.get(), newNode, sudo))
+            return false;
     }
+
+    return true;
 }
 
 bool ContainsLockedNode(const Node* node) {
@@ -267,15 +269,15 @@ bool ContainsLockedNode(const Node* node) {
     });
 }
 
-void MoveNode(const Node* from, Node* to, const bool sudo) {
+bool MoveNode(const Node* from, Node* to, const bool sudo) {
     if ((ContainsLockedNode(from) || to->metadata.sudo) && !sudo) {
         alert(msg::not_sudo, stx::yellow);
-        return;
+        return false;
     }
 
     if (GetChild(to, from->name, from->type)) {
         alert(msg::file_alr_exists, stx::yellow);
-        return;
+        return false;
     }
 
     const auto iter = std::ranges::find_if(from->parent->children, [from]
@@ -288,14 +290,16 @@ void MoveNode(const Node* from, Node* to, const bool sudo) {
 
     movedNode->parent = to;
     to->children.emplace_back(std::move(movedNode));
+
+    return true;
 }
 
 void PrintTree(const Node* node, const int indent) {
     for (int i = 0; i < indent; ++i) {
-        std::cout << ' ';
+        msg::cout << ' ';
     }
 
-    std::cout << GetPath(node) << '\n';
+    msg::cout << GetPath(node) << '\n';
     PrintTreeChildren(node, std::string(indent, ' '));
 }
 

@@ -51,8 +51,13 @@ namespace msg {
     constexpr std::string_view move_into_file = "Cannot move a file into a non-dir file.\n";
     constexpr std::string_view invalid_username = "Invalid username, try again.\n";
     constexpr std::string_view unknown_flag = "Unknown flag.\n";
+    constexpr std::string_view cmd_recursion = "File attempted to execute itself.\n";
 }
 
-void alert(const std::string_view message, const std::string_view color, const std::string& opt) {
-    std::cout << color << opt << message << stx::reset;
+namespace msg {
+    OutputStream cout;
+}
+
+void alert(const std::string_view& message, const std::string_view& color) {
+    msg::cout << color << message << stx::reset;
 }

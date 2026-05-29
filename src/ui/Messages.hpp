@@ -1,9 +1,43 @@
 #pragma once
 
-#include <string>
+#include <iostream>
+#include <ostream>
+#include <sstream>
 #include <string_view>
 
+#include "../session/SessionData.hpp"
+
 namespace msg {
+    class OutputStream {
+    public:
+        template<typename T>
+        OutputStream& operator<<(const T& value) {
+            if (SData::redirectTarget) {
+                std::ostringstream ss;
+                ss << value;
+                SData::redirectTarget->value += ss.str();
+            } else {
+                std::cout << value;
+            }
+
+            return *this;
+        }
+
+        OutputStream& operator<<(std::ostream& (*manip)(std::ostream&)) {
+            if (SData::redirectTarget) {
+                std::ostringstream ss;
+                manip(ss);
+                SData::redirectTarget->value += ss.str();
+            } else {
+                manip(std::cout);
+            }
+
+            return *this;
+        }
+    };
+
+    extern OutputStream cout;
+
     extern const std::string_view not_sudo;
     extern const std::string_view dir_not_empty;
     extern const std::string_view dir_empty;
@@ -50,6 +84,7 @@ namespace msg {
     extern const std::string_view move_into_file;
     extern const std::string_view invalid_username;
     extern const std::string_view unknown_flag;
+    extern const std::string_view cmd_recursion;
 }
 
-void alert(std::string_view message, std::string_view color, const std::string& opt = "");
+void alert(const std::string_view& message, const std::string_view& color);
