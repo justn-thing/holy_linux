@@ -68,9 +68,9 @@ namespace page {
 \033[90msupported:\033[0m .txt .cmd .py .cpp\n\
 \n\
 \033[33mExecution\033[0m\n\
-\033[36mexecute / exec [file]\033[0m      run .cmd, .py, or .exe\n\
-\033[36mcompile / comp [file]\033[0m      compile .cpp into .exe (g++ required)\n\
-\033[36m[command]\033[0m                  run package from /bin if found\n\
+\033[36mexecute / exec [file]\033[0m   run .cmd, .py, or .exe\n\
+\033[36mcompile / comp [file]\033[0m   compile .cpp into .exe (g++ required)\n\
+\033[36m[command]\033[0m               run package from /bin if found\n\
 \033[90m.cmd:\033[0m lines beginning with \033[33m//\033[0m are comments; inline comments are not supported\n\
 \n\
 \033[33mImport / Export\033[0m\n\
