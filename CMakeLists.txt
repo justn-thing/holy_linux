@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(holy_linux
         src/main.cpp
         src/apps/HolyVim.cpp
-        src/cmd/CommandParser.cpp
+        src/cmd/CmdParser.cpp
+        src/cmd/Cmds.cpp
         src/cmd/Execution.cpp
         src/core/Boot.cpp
         src/core/Run.cpp
@@ -20,6 +21,8 @@ add_executable(holy_linux
         src/ui/Pages.cpp
         src/ui/Syntax.cpp
         src/util/Misc.cpp
+        src/cmd/CmdUtils.cpp
+        src/cmd/CmdUtils.hpp
 )
 
 set_target_properties(holy_linux PROPERTIES

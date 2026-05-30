@@ -14,7 +14,7 @@ enum class RedirectMode {
     Append
 };
 
-struct CommandParams {
+struct CmdParams {
     std::string cmd;
     std::string shortFlags;
     std::vector<std::string> longFlags;
@@ -24,6 +24,6 @@ struct CommandParams {
     const Node* executionSrcNode = nullptr;
 
     RedirectMode redirectMode = RedirectMode::None;
-    std::unique_ptr<CommandParams> redirectCmd;
+    std::unique_ptr<CmdParams> redirectCmd;
     Node* redirectTarget = nullptr;
 };

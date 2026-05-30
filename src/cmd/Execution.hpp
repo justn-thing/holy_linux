@@ -1,5 +1,5 @@
 #pragma once
 
-#include "CommandParams.hpp"
+#include "CmdParams.hpp"
 
-int ExecuteCmdLine(CommandParams& param);
+int ExecuteCmdLine(CmdParams& param);

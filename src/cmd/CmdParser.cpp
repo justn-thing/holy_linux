@@ -1,4 +1,4 @@
-#include "CommandParser.hpp"
+#include "CmdParser.hpp"
 
 #include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
@@ -31,7 +31,7 @@ std::vector<std::string> TokenizeCommandLine(const std::string& input) {
     return tokens;
 }
 
-void ParseToken(CommandParams& result, std::string& token, const bool first, bool& literalMode, bool& redirected) {
+void ParseToken(CmdParams& result, std::string& token, const bool first, bool& literalMode, bool& redirected) {
     if (first && token == "sudo") {
         if (SData::user.root || LoginRoot()) {
             result.sudo = true;
@@ -61,8 +61,8 @@ void ParseToken(CommandParams& result, std::string& token, const bool first, boo
     }
 }
 
-CommandParams ParseCommandTokens(std::vector<std::string>& tokens) {
-    CommandParams result;
+CmdParams ParseCommandTokens(std::vector<std::string>& tokens) {
+    CmdParams result;
 
     bool first = true;
     bool literalMode = false;
@@ -87,16 +87,16 @@ CommandParams ParseCommandTokens(std::vector<std::string>& tokens) {
     }
 
     if (!redirectCmdTokens.empty()) {
-        result.redirectCmd = std::make_unique<CommandParams>(ParseCommandTokens(redirectCmdTokens));
+        result.redirectCmd = std::make_unique<CmdParams>(ParseCommandTokens(redirectCmdTokens));
     }
 
     return result;
 }
 
-CommandParams ParseCommandLine(const std::string& input) {
+CmdParams ParseCommandLine(const std::string& input) {
     std::vector<std::string> tokens = TokenizeCommandLine(input);
 
-    CommandParams result = std::move(ParseCommandTokens(tokens));
+    CmdParams result = std::move(ParseCommandTokens(tokens));
 
     return result;
 }

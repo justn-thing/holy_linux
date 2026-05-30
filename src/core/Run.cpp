@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-#include "../cmd/CommandParser.hpp"
+#include "../cmd/CmdParser.hpp"
 #include "../cmd/Execution.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/SessionData.hpp"
@@ -36,7 +36,7 @@ int Run() {
         std::string input;
         std::getline(std::cin, input);
 
-        CommandParams params = ParseCommandLine(input);
+        CmdParams params = ParseCommandLine(input);
         if (const int returnCode = ExecuteCmdLine(params);
             returnCode == Poweroff || returnCode == Reboot)
             return returnCode;

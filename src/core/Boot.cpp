@@ -12,7 +12,7 @@
 #include <windows.h>
 #endif
 
-#include "../cmd/CommandParser.hpp"
+#include "../cmd/CmdParser.hpp"
 #include "../cmd/Execution.hpp"
 #include "../util/ReturnCodes.hpp"
 #include "../core/Run.hpp"
@@ -37,7 +37,7 @@ int BootStartupConfig() {
 
     if (const Node* startupConfig = GetAbsolute("/boot/startupConfig.cmd")) {
         for (const std::string& line : split(startupConfig->value, '\n')) {
-            CommandParams params = ParseCommandLine(line);
+            CmdParams params = ParseCommandLine(line);
             ExecuteCmdLine(params); // ignores poweroff and reboot
         }
     } else {
