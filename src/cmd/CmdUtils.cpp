@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <array>
-#include <string_view>
 
 #include "../cmd/CmdParams.hpp"
 #include "../ui/Messages.hpp"
@@ -36,9 +35,29 @@ bool NotEnoughArgs(const CmdParams& param, const size_t minAmount) {
 }
 
 bool IsTextFileType(const std::string& fileType) {
-    constexpr std::array<std::string_view, 4> textTypes = {
-        "txt", "cmd", "py", "cpp"
-    };
+    return std::ranges::contains(textFileTypes, fileType);
+}
 
-    return std::ranges::contains(textTypes, fileType);
+bool IsExecutableFileType(const std::string& fileType) {
+    return std::ranges::contains(execFileTypes, fileType);
+}
+
+bool IsOverflowingStack(const Node* file) {
+    if (std::ranges::count(SData::executionStack, file) > 63) {
+        alert(msg::stack_overflow, stx::red);
+        return true;
+    }
+
+    return false;
+}
+
+void AddToStack(const Node* file) {
+    SData::executionStack.emplace_back(file);
+}
+
+void RemoveFromStack(const Node* file) {
+    if (const auto iter = std::ranges::find(SData::executionStack, file);
+        iter != SData::executionStack.end()) {
+        SData::executionStack.erase(iter);
+    }
 }

@@ -1,5 +1,6 @@
 #include "Cmds.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <ctime>
@@ -295,55 +296,60 @@ namespace cmds {
             return 1;
         }
         if (target->metadata.sudo && NotSudo(param)) return 1;
+        if (!IsExecutableFileType(target->type)) {
+            alert(msg::invalid_file_type, stx::yellow);
+            return 1;
+        }
+        if (IsOverflowingStack(target)) return 1;
+
+        AddToStack(target);
 
         if (target->type == "cmd") {
-            if (param.executionSrcNode && target == param.executionSrcNode) {
-                alert(msg::cmd_recursion, stx::red);
-                return 1;
-            }
-
             for (const std::string& line : split(target->value, '\n')) {
                 CmdParams params = ParseCommandLine(line);
-                params.executionSrcNode = target;
-                if (const int& returnCode = ExecuteCmdLine(params); returnCode != 0)
+                if (const int& returnCode = ExecuteCmdLine(params); returnCode != 0) {
+                    RemoveFromStack(target);
                     return returnCode;
+                }
             }
         } else if (target->type == "py") {
-            std::ofstream fileout(SData::RAM::py);
+            std::ofstream fileout(SData::ExternFS::RAM::py);
             fileout << target->value;
             fileout.close();
 
 #ifdef _WIN32
-            const std::wstring runCmd = L"py \"" + SData::RAM::py.wstring() + L"\"";
+            const std::wstring runCmd = L"py \"" + SData::ExternFS::RAM::py.wstring() + L"\"";
             const int runCode = _wsystem(runCmd.c_str());
 #else
             const std::string runCmd = "python3 \"" + SData::RAM::py.string() + "\"";
             const int runCode = system(runCmd.c_str());
 #endif
 
-            std::ofstream fileErase(SData::RAM::py);
+            std::ofstream fileErase(SData::ExternFS::RAM::py);
             fileErase.close();
-            if (runCode != 0)
+            if (runCode != 0) {
+                RemoveFromStack(target);
                 return 1;
+            }
         } else if (target->type == "exe") {
-            std::ofstream fileout(SData::RAM::exe, std::ios::binary);
+            std::ofstream fileout(SData::ExternFS::RAM::exe, std::ios::binary);
             fileout << target->value;
             fileout.close();
 #ifdef _WIN32
-            const std::wstring runCmd = L"\"" + SData::RAM::exe.wstring() + L"\"";
+            const std::wstring runCmd = L"\"" + SData::ExternFS::RAM::exe.wstring() + L"\"";
             const int runCode = _wsystem(runCmd.c_str());
 #else
             const std::string runCmd = "chmod +x \"" + SData::RAM::exe.string() + "\" && \"" +
                                        SData::RAM::exe.string() + "\"";
             const int runCode = system(runCmd.c_str());
 #endif
-            if (runCode != 0)
+            if (runCode != 0) {
+                RemoveFromStack(target);
                 return 1;
-        } else {
-            alert(msg::invalid_file_type, stx::yellow);
-            return 1;
+            }
         }
 
+        RemoveFromStack(target);
         return 0;
     }
 
@@ -358,13 +364,13 @@ namespace cmds {
         if (target->metadata.sudo && NotSudo(param)) return 1;
 
         if (target->type == "cpp") {
-            std::ofstream fileout(SData::RAM::cpp);
+            std::ofstream fileout(SData::ExternFS::RAM::cpp);
             fileout << target->value;
             fileout.close();
 
 #ifdef _WIN32
-            const std::filesystem::path compiledPath = SData::RAM::cpp.parent_path() / "cppCompiled.exe";
-            const std::wstring compileCmd = L"g++ \"" + SData::RAM::cpp.wstring() + L"\" -o \"" +
+            const std::filesystem::path compiledPath = SData::ExternFS::RAM::cpp.parent_path() / "cppCompiled.exe";
+            const std::wstring compileCmd = L"g++ \"" + SData::ExternFS::RAM::cpp.wstring() + L"\" -o \"" +
                                             compiledPath.wstring() + L"\"";
 #else
             const std::filesystem::path compiledPath = SData::RAM::cpp.parent_path() / "cppCompiled";
@@ -383,7 +389,7 @@ namespace cmds {
                 return 1;
             }
 
-            std::ofstream fileErase(SData::RAM::cpp);
+            std::ofstream fileErase(SData::ExternFS::RAM::cpp);
             fileErase.close();
 
             std::ifstream filein(compiledPath, std::ios::binary);
@@ -470,7 +476,7 @@ namespace cmds {
             return 1;
         }
 
-        const std::filesystem::path newFile = SData::Export::selfDir / (target->name + '.' + target->type);
+        const std::filesystem::path newFile = SData::ExternFS::Export::selfDir / (target->name + '.' + target->type);
 
         std::ofstream fileout(newFile, std::ios::binary);
         if (!fileout.is_open()) {

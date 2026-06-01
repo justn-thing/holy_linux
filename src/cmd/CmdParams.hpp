@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-#include "../fs/NodeStruct.hpp"
-
 enum class RedirectMode {
     None,
     And,
@@ -20,8 +18,6 @@ struct CmdParams {
     std::vector<std::string> longFlags;
     std::vector<std::string> args;
     bool sudo = false;
-
-    const Node* executionSrcNode = nullptr;
 
     RedirectMode redirectMode = RedirectMode::None;
     std::unique_ptr<CmdParams> redirectCmd;

@@ -84,7 +84,7 @@ namespace msg {
     extern const std::string_view move_into_file;
     extern const std::string_view invalid_username;
     extern const std::string_view unknown_flag;
-    extern const std::string_view cmd_recursion;
+    extern const std::string_view stack_overflow;
 }
 
 void alert(const std::string_view& message, const std::string_view& color);

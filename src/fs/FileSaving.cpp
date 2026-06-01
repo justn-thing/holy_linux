@@ -43,7 +43,7 @@ std::string SerializeNode(const Node* node) {
 }
 
 bool SaveFileSystem() {
-    std::ofstream out(SData::ROM::fileSystem, std::ios::binary);
+    std::ofstream out(SData::ExternFS::ROM::fileSystem, std::ios::binary);
     if (!out.is_open()) return false;
 
     for (const std::unique_ptr<Node>& child : FS::root->children) {
@@ -138,7 +138,7 @@ bool LoadNode(Node* parent, std::istream& in) {
 }
 
 bool LoadFileSystem() {
-    std::ifstream fs(SData::ROM::fileSystem, std::ios::binary);
+    std::ifstream fs(SData::ExternFS::ROM::fileSystem, std::ios::binary);
     if (!fs.is_open()) return false;
 
     while (LoadNode(FS::root, fs)) {}

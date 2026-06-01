@@ -8,35 +8,32 @@
 #include "../apps/HolyVim.hpp"
 #include "../cmd/CmdParser.hpp"
 #include "../cmd/Cmds.hpp"
-#include "../util/ReturnCodes.hpp"
+#include "../cmd/CmdUtils.hpp"
 #include "../fs/FileTree.hpp"
 #include "../session/SessionData.hpp"
 #include "../ui/Messages.hpp"
 #include "../ui/Syntax.hpp"
+#include "../util/ReturnCodes.hpp"
 
-int TryExecutePackage(CmdParams& param) {
+int TryExecutePackage(const CmdParams& param) {
     const Node* bin = GetChild(FS::root, "bin", "dir");
     if (!bin)
         bin = NewChild(FS::root, "bin", "dir");
 
     const std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
 
-    if (GetChild(bin, param.cmd, "exe")) {
-        CmdParams line = ParseCommandLine(exec + param.cmd + ".exe");
-        return ExecuteCmdLine(line);
-    } if (GetChild(bin, param.cmd, "cmd")) {
-        CmdParams line = ParseCommandLine(exec + param.cmd + ".cmd");
-        return ExecuteCmdLine(line);
-    } if (GetChild(bin, param.cmd, "py")) {
-        CmdParams line = ParseCommandLine(exec + param.cmd + ".py");
-        return ExecuteCmdLine(line);
+    for (const std::string_view& execFileType : execFileTypes) {
+        if (GetChild(bin, param.cmd, execFileType.data())) {
+            const CmdParams line = ParseCommandLine(exec + param.cmd + '.' + execFileType.data());
+            return ExecuteCmdLine(line);
+        }
     }
 
     alert(msg::unknown_cmd, stx::yellow);
     return 1;
 }
 
-int ExecuteCmd(CmdParams& param) {
+int ExecuteCmd(const CmdParams& param) {
     if (param.cmd.empty() || param.cmd == "//")
         return 0;
 
@@ -46,7 +43,7 @@ int ExecuteCmd(CmdParams& param) {
     return TryExecutePackage(param);
 }
 
-int ExecuteCmdLine(CmdParams& param) {
+int ExecuteCmdLine(const CmdParams& param) {
     if (param.redirectMode == RedirectMode::Overwrite || param.redirectMode == RedirectMode::Append) {
         Node* redirectTarget = GetAbsolute(param.redirectTarget);
 

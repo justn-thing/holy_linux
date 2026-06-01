@@ -19,19 +19,23 @@ namespace SData {
     extern bool redirecting;
     extern Node* redirectTarget;
 
-    extern std::filesystem::path selfParentPath;
+    extern std::vector<const Node*> executionStack;
 
-    namespace RAM {
-        extern std::filesystem::path py;
-        extern std::filesystem::path cpp;
-        extern std::filesystem::path exe;
-    }
+    namespace ExternFS {
+        extern std::filesystem::path selfParentPath;
 
-    namespace ROM {
-        extern std::filesystem::path fileSystem;
-    }
+        namespace RAM {
+            extern std::filesystem::path py;
+            extern std::filesystem::path cpp;
+            extern std::filesystem::path exe;
+        }
 
-    namespace Export {
-        extern std::filesystem::path selfDir;
+        namespace ROM {
+            extern std::filesystem::path fileSystem;
+        }
+
+        namespace Export {
+            extern std::filesystem::path selfDir;
+        }
     }
 }

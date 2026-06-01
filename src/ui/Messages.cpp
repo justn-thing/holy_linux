@@ -51,7 +51,7 @@ namespace msg {
     constexpr std::string_view move_into_file = "Cannot move a file into a non-dir file.\n";
     constexpr std::string_view invalid_username = "Invalid username, try again.\n";
     constexpr std::string_view unknown_flag = "Unknown flag.\n";
-    constexpr std::string_view cmd_recursion = "File attempted to execute itself.\n";
+    constexpr std::string_view stack_overflow = "File executed more than 64 times at once.\n";
 }
 
 namespace msg {
