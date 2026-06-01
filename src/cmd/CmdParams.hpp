@@ -25,5 +25,5 @@ struct CmdParams {
 
     RedirectMode redirectMode = RedirectMode::None;
     std::unique_ptr<CmdParams> redirectCmd;
-    Node* redirectTarget = nullptr;
+    std::string redirectTarget;
 };

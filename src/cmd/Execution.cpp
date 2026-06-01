@@ -48,23 +48,25 @@ int ExecuteCmd(CmdParams& param) {
 
 int ExecuteCmdLine(CmdParams& param) {
     if (param.redirectMode == RedirectMode::Overwrite || param.redirectMode == RedirectMode::Append) {
-        if (!param.redirectTarget) {
+        Node* redirectTarget = GetAbsolute(param.redirectTarget);
+
+        if (!redirectTarget) {
             alert(msg::file_not_found, stx::red);
             return 1;
         }
 
-        if (param.redirectTarget->metadata.sudo && !param.sudo) {
+        if (redirectTarget->metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
             return 1;
         }
 
-        if (param.redirectTarget->type == "dir") {
+        if (redirectTarget->type == "dir") {
             alert(msg::invalid_file_type, stx::yellow);
             return 1;
         }
 
         SData::redirecting = true;
-        SData::redirectTarget = param.redirectTarget;
+        SData::redirectTarget = redirectTarget;
 
         if (param.redirectMode == RedirectMode::Overwrite)
             SData::redirectTarget->value.clear();

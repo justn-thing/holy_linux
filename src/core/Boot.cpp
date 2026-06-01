@@ -86,7 +86,7 @@ void BootFileDependencies() {
     using namespace std::filesystem;
 
     const path ramDir = SData::selfParentPath / "ram";
-    SData::RAM::cpp = ramDir / "cppCompileable.cpp";
+    SData::RAM::cpp = ramDir / "cppCompilable.cpp";
     SData::RAM::py = ramDir / "pythonExecutable.txt";
 #ifdef _WIN32
     SData::RAM::exe = ramDir / "winExecutable.exe";

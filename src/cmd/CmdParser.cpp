@@ -72,7 +72,7 @@ CmdParams ParseCommandTokens(std::vector<std::string>& tokens) {
     for (std::string& token : tokens) {
         if (redirected) {
             if (result.redirectMode == RedirectMode::Overwrite || result.redirectMode == RedirectMode::Append) {
-                result.redirectTarget = GetAbsolute(token);
+                result.redirectTarget = token;
                 break;
             }
 

@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "../fs/NodeStruct.hpp"
+
 namespace SData {
     CurrentUser user;
 

@@ -17,11 +17,11 @@ void PrintShellPrompt() {
     buffer += stx::yellow;
     buffer += "@holy-linux ";
     buffer += stx::gray;
-    buffer += '<';
+    buffer += '[';
     buffer += stx::white;
     buffer += GetCosmeticPath();
     buffer += stx::gray;
-    buffer += '>';
+    buffer += ']';
     buffer += stx::gray;
     buffer += " $";
     buffer += stx::reset;

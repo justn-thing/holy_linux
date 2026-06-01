@@ -45,7 +45,7 @@ std::string GetPath(const Node* current) {
 std::string GetCosmeticPath(const Node* current) {
     std::string path = GetPath(current);
 
-    if (path.starts_with("/home/" + SData::user.name))
+    if (path == "/home/" + SData::user.name || path.starts_with("/home/" + SData::user.name + '/'))
         path = "~" + path.substr(6 + SData::user.name.length());
 
     return path;
@@ -176,7 +176,6 @@ void DisplayDir(const Node* parent) {
     for (const std::unique_ptr<Node>& child : parent->children) {
         const bool containsSpace = child->name.contains(' ') || child->type.contains(' ');
         if (containsSpace) AddFileNameSeparator(buffer);
-        else buffer += ' ';
 
         buffer += child->name;
         if (child->type != "dir")
@@ -254,12 +253,9 @@ bool CopyNode(const Node* from, Node* to, const bool sudo) {
     }
     newNode->value = from->value;
 
-    for (const std::unique_ptr<Node>& child : from->children) {
-        if (!CopyNode(child.get(), newNode, sudo))
-            return false;
-    }
-
-    return true;
+    return std::ranges::all_of(from->children, [&] (const std::unique_ptr<Node>& child) {
+        return CopyNode(child.get(), newNode, sudo);
+    });
 }
 
 bool ContainsLockedNode(const Node* node) {
