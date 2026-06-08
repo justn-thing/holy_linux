@@ -155,6 +155,7 @@ int Login() {
     else {
         std::string temp;
         while (true) {
+            stx::ClearConsole();
             std::cout << "Please enter user name (";
             int currentDir = 0;
             for (const std::unique_ptr<Node>& child : home->children) {

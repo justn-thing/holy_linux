@@ -91,9 +91,8 @@ namespace page {
 \033[36mreboot [-d]\033[0m             restart (-d discards changes)\n";
 
     constexpr std::string_view holyVim =
-"Holy Vim 1.1\n\
-\n\
-Type ':cmds' for Commands\n";
+"\033[33mHoly Vim\033[36m 1.1b\n\
+\033[90mType ':cmds' for Commands\n";
 
     constexpr std::string_view holyVimHelp =
 "Holy Vim Commands\n\

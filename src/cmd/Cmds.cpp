@@ -741,6 +741,7 @@ namespace cmds {
     }
 
     int poweroff_reboot_(const CmdParams& param) {
+        stx::ClearConsole();
         alert(msg::begin_poweroff, stx::green);
 
         const int returnCode = param.cmd == "poweroff" ? Poweroff : Reboot;

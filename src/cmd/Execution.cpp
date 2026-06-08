@@ -5,7 +5,6 @@
 #include <string>
 #include <utility>
 
-#include "../apps/HolyVim.hpp"
 #include "../cmd/CmdParser.hpp"
 #include "../cmd/Cmds.hpp"
 #include "../cmd/CmdUtils.hpp"
