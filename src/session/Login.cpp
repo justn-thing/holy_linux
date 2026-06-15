@@ -15,6 +15,42 @@
 #include "../ui/Syntax.hpp"
 #include "../util/Misc.hpp"
 
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
+std::string getPassword() {
+#ifdef _WIN32
+    std::string pass;
+    char ch;
+    while ((ch = static_cast<char>(_getch())) != '\r') {
+        if (ch == '\b') {
+            if (!pass.empty()) pass.pop_back();
+        } else {
+            pass += ch;
+        }
+    }
+    std::cout << '\n';
+#else
+    termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    std::string pass;
+    std::getline(std::cin, pass);
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    std::cout << '\n';
+#endif
+
+    return pass;
+}
+
 void ChangePassword(const std::string& username, const std::string& password) {
     Node* etc = GetChild(FS::root, "etc", "dir");
     if (!etc)
@@ -85,17 +121,13 @@ PassReturn GetCorrectPass(const std::string& userName) {
 }
 
 bool LoginRoot() {
-    std::string enteredPass;
     auto [success, pass] = GetCorrectPass("//root//");
     if (!success) {
-        std::string newPass;
-        std::string confirmPass;
         while (true) {
             alert("Please enter a new root password: ", stx::yellow);
-            std::getline(std::cin, newPass);
+            const std::string newPass = getPassword();
             alert("Please confirm the new root password: ", stx::yellow);
-            std::getline(std::cin, confirmPass);
-            if (newPass == confirmPass && !newPass.empty()) {
+            if (newPass == getPassword() && !newPass.empty()) {
                 ChangePassword("//root//", newPass);
                 SData::user.root = true;
                 break;
@@ -107,9 +139,8 @@ bool LoginRoot() {
 
     for (size_t i = 0; i < 3; ++i) {
         alert("Password for root: ", stx::yellow);
-        std::getline(std::cin, enteredPass);
 
-        if (enteredPass == pass) {
+        if (getPassword() == pass) {
             SData::user.root = true;
             return true;
         }
@@ -176,17 +207,13 @@ int Login() {
         }
     }
 
-    std::string enteredPass;
     auto [success, pass] = GetCorrectPass(userName);
     if (!success) {
-        std::string newPass;
-        std::string confirmPass;
         while (true) {
             alert("Please enter a new " + userName + " password: ", stx::yellow);
-            std::getline(std::cin, newPass);
+            const std::string newPass = getPassword();
             alert("Please confirm the new " + userName + " password: ", stx::yellow);
-            std::getline(std::cin, confirmPass);
-            if (newPass == confirmPass && !newPass.empty()) {
+            if (newPass == getPassword() && !newPass.empty()) {
                 ChangePassword(userName, newPass);
                 SData::user.name = userName;
                 FS::current = GetAbsolute("/home/" + userName);
@@ -198,9 +225,7 @@ int Login() {
 
     for (size_t i = 0; i < 3; ++i) {
         std::cout << "Password for " << userName << ": ";
-        std::getline(std::cin, enteredPass);
-
-        if (enteredPass == pass) {
+        if (getPassword() == pass) {
             SData::user.name = userName;
             FS::current = GetAbsolute("/home/" + userName);
             return 0;
