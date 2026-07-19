@@ -321,7 +321,7 @@ namespace {
                 fileout.close();
 
 #ifdef _WIN32
-                const std::wstring runCmd = L"py \"" + SData::ExternFS::RAM::py.wstring() + L"\"";
+                const std::wstring runCmd = L"python \"" + SData::ExternFS::RAM::py.wstring() + L"\"";
                 const int runCode = _wsystem(runCmd.c_str());
 #else
                 const std::string runCmd = "python3 \"" + SData::RAM::py.string() + "\"";

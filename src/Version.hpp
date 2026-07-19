@@ -3,5 +3,5 @@
 #include <string_view>
 
 namespace version {
-    inline constexpr std::string_view num = "2.11a";
+    inline constexpr std::string_view num = "2.11b";
 }
