@@ -3,7 +3,7 @@
 #include <array>
 
 #include "../cmd/CmdParams.hpp"
-#include "../fs/NodeStruct.hpp"
+#include "../fs/Node.hpp"
 
 constexpr std::array<std::string_view, 4> textFileTypes = {
     "txt", "cmd", "py", "cpp"

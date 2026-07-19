@@ -13,7 +13,7 @@
 
 std::string SerializeDir(const Node* dir) {
     std::string value;
-    for (const std::unique_ptr<Node>& child : dir->children) {
+    for (const std::unique_ptr<Node>& child : dir->_children) {
         value += SerializeNode(child.get());
     }
     return value;
@@ -22,19 +22,19 @@ std::string SerializeDir(const Node* dir) {
 std::string SerializeNode(const Node* node) {
     std::string payload;
 
-    if (node->type == "dir") {
+    if (node->_type == "dir") {
         payload = SerializeDir(node);
     } else {
-        payload = node->value;
+        payload = node->_value;
     }
 
-    const std::string& misc = node->metadata.misc;
+    const std::string& misc = node->_metadata.misc;
 
     std::string out;
-    out += node->name + '\0';
-    out += node->type + '\0';
+    out += node->_name + '\0';
+    out += node->_type + '\0';
     out += std::to_string(payload.size()) + '\0';
-    out += std::to_string(node->metadata.sudo ? 1 : 0) + '\0';
+    out += std::to_string(node->_metadata.sudo ? 1 : 0) + '\0';
     out += std::to_string(misc.size()) + '\0';
     out += misc;
     out += payload;
@@ -46,7 +46,7 @@ bool SaveFileSystem() {
     std::ofstream out(SData::ExternFS::ROM::fileSystem, std::ios::binary);
     if (!out.is_open()) return false;
 
-    for (const std::unique_ptr<Node>& child : FS::root->children) {
+    for (const std::unique_ptr<Node>& child : FS::root->_children) {
         out << SerializeNode(child.get());
     }
     return true;
@@ -71,19 +71,22 @@ void LoadDir(Node* parent, std::istream& in, const size_t limit) {
 static bool ReadNullTerminatedField(std::istream& in, std::string& field) {
     field.clear();
 
-    if (std::getline(in, field, '\0'))
+    if (std::getline(in, field, '\0')) {
         return true;
+    }
 
-    if (in.eof() && field.empty())
+    if (in.eof() && field.empty()) {
         return false;
+    }
 
     throw std::runtime_error("Loading filesystem failed; corrupt header");
 }
 
 bool LoadNode(Node* parent, std::istream& in) {
     std::string name;
-    if (!ReadNullTerminatedField(in, name))
+    if (!ReadNullTerminatedField(in, name)) {
         return false;
+    }
 
     std::string type;
     std::string payloadSizeText;
@@ -93,11 +96,13 @@ bool LoadNode(Node* parent, std::istream& in) {
     if (!ReadNullTerminatedField(in, type) ||
         !ReadNullTerminatedField(in, payloadSizeText) ||
         !ReadNullTerminatedField(in, sudoFlagText) ||
-        !ReadNullTerminatedField(in, miscSizeText))
+        !ReadNullTerminatedField(in, miscSizeText)) {
         throw std::runtime_error("Loading filesystem failed; corrupt header");
+    }
 
-    if (name.empty() || type.empty())
+    if (name.empty() || type.empty()) {
         throw std::runtime_error("Loading filesystem failed; corrupt name/type");
+    }
 
     size_t payloadSize;
     size_t miscSize;
@@ -112,26 +117,29 @@ bool LoadNode(Node* parent, std::istream& in) {
     }
 
     Metadata md;
-    if (sudoFlag != 0 && sudoFlag != 1)
+    if (sudoFlag != 0 && sudoFlag != 1) {
         throw std::runtime_error("Loading filesystem failed; corrupt sudo flag");
+    }
 
     md.sudo = (sudoFlag == 1);
 
     md.misc.resize(miscSize);
     in.read(md.misc.data(), static_cast<std::streamsize>(miscSize));
-    if (std::cmp_not_equal(in.gcount(), miscSize))
+    if (std::cmp_not_equal(in.gcount(), miscSize)) {
         throw std::runtime_error("Loading filesystem failed; unexpected EOF in metadata");
+    }
 
-    Node* node = NewChild(parent, name, type, md.sudo, md.misc);
+    Node* node = parent->NewChild(name, type, md.sudo, md.misc);
 
     if (type == "dir") {
         LoadDir(node, in, payloadSize);
     } else {
-        node->value.resize(payloadSize);
-        in.read(node->value.data(), static_cast<std::streamsize>(payloadSize));
+        node->_value.resize(payloadSize);
+        in.read(node->_value.data(), static_cast<std::streamsize>(payloadSize));
 
-        if (std::cmp_not_equal(in.gcount(), payloadSize))
+        if (std::cmp_not_equal(in.gcount(), payloadSize)) {
             throw std::runtime_error("Loading filesystem failed; unexpected EOF in file");
+        }
     }
 
     return true;

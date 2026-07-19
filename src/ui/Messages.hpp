@@ -15,7 +15,7 @@ namespace msg {
             if (SData::redirectTarget) {
                 std::ostringstream ss;
                 ss << value;
-                SData::redirectTarget->value += ss.str();
+                SData::redirectTarget->_value += ss.str();
             } else {
                 std::cout << value;
             }
@@ -27,7 +27,7 @@ namespace msg {
             if (SData::redirectTarget) {
                 std::ostringstream ss;
                 manip(ss);
-                SData::redirectTarget->value += ss.str();
+                SData::redirectTarget->_value += ss.str();
             } else {
                 manip(std::cout);
             }

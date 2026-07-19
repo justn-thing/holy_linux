@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../fs/NodeStruct.hpp"
+#include "../fs/Node.hpp"
 
 void displayIndex(const size_t& index);
 size_t displayContent(const std::vector<std::string>& output);

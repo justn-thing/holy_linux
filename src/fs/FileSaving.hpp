@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../fs/NodeStruct.hpp"
+#include "../fs/Node.hpp"
 
 std::string SerializeNode(const Node* node);
 std::string SerializeDir(const Node* dir);

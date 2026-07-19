@@ -42,7 +42,7 @@ void HolyVim(Node* target, const std::string& cmd) {
     auto vimIndex = 1uz;
 
     if (cmd == "edit") {
-        const std::vector<std::string> prevContent = split(target->value, '\n', true);
+        const std::vector<std::string> prevContent = split(target->_value, '\n', true);
         vimIndex = displayContent(prevContent);
         output = prevContent;
     }
@@ -76,10 +76,12 @@ void HolyVim(Node* target, const std::string& cmd) {
                         output.erase(output.begin() + static_cast<int>(convertedStr) - 1);
                         --vimIndex;
                     }
-                } else
+                } else {
                     alert(msg::invalid_arg, stx::yellow);
-            } else
+                }
+            } else {
                 alert(msg::invalid_arg, stx::yellow);
+            }
             continue;
         }
         if (cmds[0] == ":reload" || cmds[0] == ":re") {
@@ -93,19 +95,22 @@ void HolyVim(Node* target, const std::string& cmd) {
         }
         if (cmds[0] == ":save" || cmds[0] == ":s") {
             std::string finalOutput;
-            for (const std::string& line : output)
+            for (const std::string& line : output) {
                 finalOutput += line + '\n';
+            }
 
-            target->value = finalOutput;
+            target->_value = finalOutput;
             break;
         }
-        if (cmds[0] == ":discard" || cmds[0] == ":d")
+        if (cmds[0] == ":discard" || cmds[0] == ":d") {
             break;
+        }
 
-        if (vimIndex > output.size())
+        if (vimIndex > output.size()) {
             output.push_back(temp);
-        else
+        } else {
             output[vimIndex - 1] = temp;
+        }
 
         ++vimIndex;
     }

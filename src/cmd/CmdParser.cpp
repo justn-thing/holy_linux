@@ -1,96 +1,97 @@
 #include "CmdParser.hpp"
 
-#include "../fs/FileTree.hpp"
 #include "../session/Login.hpp"
 #include "../session/SessionData.hpp"
 
-std::vector<std::string> TokenizeCommandLine(const std::string& input) {
-    std::vector<std::string> tokens;
+namespace {
+    std::vector<std::string> TokenizeCommandLine(const std::string& input) {
+        std::vector<std::string> tokens;
 
-    std::string temp;
-    bool openQuotes = false;
-    char quoteChar {};
+        std::string temp;
+        bool openQuotes = false;
+        char quoteChar {};
 
-    for (const char& c : input) {
-        if (openQuotes && c == quoteChar) {
-            openQuotes = false;
-        } else if (!openQuotes && (c == '"' || c == '\'')) {
-            openQuotes = true;
-            quoteChar = c;
-        } else if (!openQuotes && c == ' ') {
-            if (!temp.empty()) {
-                tokens.emplace_back(temp);
-                temp.clear();
+        for (const char& c : input) {
+            if (openQuotes && c == quoteChar) {
+                openQuotes = false;
+            } else if (!openQuotes && (c == '"' || c == '\'')) {
+                openQuotes = true;
+                quoteChar = c;
+            } else if (!openQuotes && c == ' ') {
+                if (!temp.empty()) {
+                    tokens.emplace_back(temp);
+                    temp.clear();
+                }
+            } else {
+                temp += c;
             }
+        }
+
+        if (!temp.empty()) tokens.emplace_back(temp);
+        return tokens;
+    }
+
+    void ParseToken(CmdParams& result, std::string& token, const bool first, bool& literalMode, bool& redirected) {
+        if (first && token == "sudo") {
+            if (SData::user.root || LoginRoot()) {
+                result.sudo = true;
+            }
+        } else if (result.cmd.empty()) {
+            result.cmd = token;
+        } else if (!literalMode && token == "--") {
+            literalMode = true;
+        } else if (!literalMode && token.starts_with("--")) {
+            result.longFlags.emplace_back(token.substr(2));
+        } else if (!literalMode && token[0] == '-') {
+            result.shortFlags += token.substr(1);
+        } else if (!redirected && token == "&&") {
+            redirected = true;
+            result.redirectMode = RedirectMode::And;
+        } else if (!redirected && token == "||") {
+            redirected = true;
+            result.redirectMode = RedirectMode::Or;
+        } else if (!redirected && token == ">") {
+            redirected = true;
+            result.redirectMode = RedirectMode::Overwrite;
+        } else if (!redirected && token == ">>") {
+            redirected = true;
+            result.redirectMode = RedirectMode::Append;
         } else {
-            temp += c;
+            result.args.emplace_back(std::move(token));
         }
     }
 
-    if (!temp.empty()) tokens.emplace_back(temp);
-    return tokens;
-}
+    CmdParams ParseCommandTokens(std::vector<std::string>& tokens) {
+        CmdParams result;
 
-void ParseToken(CmdParams& result, std::string& token, const bool first, bool& literalMode, bool& redirected) {
-    if (first && token == "sudo") {
-        if (SData::user.root || LoginRoot()) {
-            result.sudo = true;
-        }
-    } else if (result.cmd.empty()) {
-        result.cmd = token;
-    } else if (!literalMode && token == "--") {
-        literalMode = true;
-    } else if (!literalMode && token.starts_with("--")) {
-        result.longFlags.emplace_back(token.substr(2));
-    } else if (!literalMode && token[0] == '-') {
-        result.shortFlags += token.substr(1);
-    } else if (!redirected && token == "&&") {
-        redirected = true;
-        result.redirectMode = RedirectMode::And;
-    } else if (!redirected && token == "||") {
-        redirected = true;
-        result.redirectMode = RedirectMode::Or;
-    } else if (!redirected && token == ">") {
-        redirected = true;
-        result.redirectMode = RedirectMode::Overwrite;
-    } else if (!redirected && token == ">>") {
-        redirected = true;
-        result.redirectMode = RedirectMode::Append;
-    } else {
-        result.args.emplace_back(std::move(token));
-    }
-}
+        bool first = true;
+        bool literalMode = false;
+        bool redirected = false;
+        std::vector<std::string> redirectCmdTokens;
 
-CmdParams ParseCommandTokens(std::vector<std::string>& tokens) {
-    CmdParams result;
+        for (std::string& token : tokens) {
+            if (redirected) {
+                if (result.redirectMode == RedirectMode::Overwrite || result.redirectMode == RedirectMode::Append) {
+                    result.redirectTarget = token;
+                    break;
+                }
 
-    bool first = true;
-    bool literalMode = false;
-    bool redirected = false;
-    std::vector<std::string> redirectCmdTokens;
+                redirectCmdTokens.emplace_back(token);
 
-    for (std::string& token : tokens) {
-        if (redirected) {
-            if (result.redirectMode == RedirectMode::Overwrite || result.redirectMode == RedirectMode::Append) {
-                result.redirectTarget = token;
-                break;
+                continue;
             }
 
-            redirectCmdTokens.emplace_back(token);
+            ParseToken(result, token, first, literalMode, redirected);
 
-            continue;
+            first = false;
         }
 
-        ParseToken(result, token, first, literalMode, redirected);
+        if (!redirectCmdTokens.empty()) {
+            result.redirectCmd = std::make_unique<CmdParams>(ParseCommandTokens(redirectCmdTokens));
+        }
 
-        first = false;
+        return result;
     }
-
-    if (!redirectCmdTokens.empty()) {
-        result.redirectCmd = std::make_unique<CmdParams>(ParseCommandTokens(redirectCmdTokens));
-    }
-
-    return result;
 }
 
 CmdParams ParseCommandLine(const std::string& input) {

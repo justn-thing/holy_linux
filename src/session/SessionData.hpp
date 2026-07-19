@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "../fs/NodeStruct.hpp"
+#include "../fs/Node.hpp"
 
 class CurrentUser {
 public:

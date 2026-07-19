@@ -1,4 +1,3 @@
 #pragma once
 
-int Boot();
-int Post(char* args[]);
+int InitSystem(char* args[]);

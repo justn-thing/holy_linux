@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "../fs/NodeStruct.hpp"
+#include "../fs/Node.hpp"
 
 namespace SData {
     CurrentUser user;

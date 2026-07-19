@@ -14,32 +14,37 @@
 #include "../ui/Syntax.hpp"
 #include "../util/ReturnCodes.hpp"
 
-int TryExecutePackage(const CmdParams& param) {
-    const Node* bin = GetChild(FS::root, "bin", "dir");
-    if (!bin)
-        bin = NewChild(FS::root, "bin", "dir");
-
-    const std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
-
-    for (const std::string_view& execFileType : execFileTypes) {
-        if (GetChild(bin, param.cmd, execFileType.data())) {
-            const CmdParams line = ParseCommandLine(exec + param.cmd + '.' + execFileType.data());
-            return ExecuteCmdLine(line);
+namespace {
+    int TryExecutePackage(const CmdParams& param) {
+        const Node* bin = FS::root->GetChild("bin", "dir");
+        if (!bin) {
+            bin = FS::root->NewChild("bin", "dir");
         }
+
+        const std::string exec = param.sudo ? "sudo exec /bin/" : "exec /bin/";
+
+        for (const std::string_view& execFileType : execFileTypes) {
+            if (bin->GetChild(param.cmd, execFileType.data())) {
+                const CmdParams line = ParseCommandLine(exec + param.cmd + '.' + execFileType.data());
+                return ExecuteCmdLine(line);
+            }
+        }
+
+        alert(msg::unknown_cmd, stx::yellow);
+        return 1;
     }
 
-    alert(msg::unknown_cmd, stx::yellow);
-    return 1;
-}
+    int ExecuteCmd(const CmdParams& param) {
+        if (param.cmd.empty() || param.cmd == "//") {
+            return 0;
+        }
 
-int ExecuteCmd(const CmdParams& param) {
-    if (param.cmd.empty() || param.cmd == "//")
-        return 0;
+        if (const auto it = Commands.find(param.cmd); it != Commands.end()) {
+            return it->second(param);
+        }
 
-    if (const auto it = Commands.find(param.cmd); it != Commands.end())
-        return it->second(param);
-
-    return TryExecutePackage(param);
+        return TryExecutePackage(param);
+    }
 }
 
 int ExecuteCmdLine(const CmdParams& param) {
@@ -51,12 +56,12 @@ int ExecuteCmdLine(const CmdParams& param) {
             return 1;
         }
 
-        if (redirectTarget->metadata.sudo && !param.sudo) {
+        if (redirectTarget->_metadata.sudo && !param.sudo) {
             alert(msg::not_sudo, stx::yellow);
             return 1;
         }
 
-        if (redirectTarget->type == "dir") {
+        if (redirectTarget->_type == "dir") {
             alert(msg::invalid_file_type, stx::yellow);
             return 1;
         }
@@ -64,8 +69,9 @@ int ExecuteCmdLine(const CmdParams& param) {
         SData::redirecting = true;
         SData::redirectTarget = redirectTarget;
 
-        if (param.redirectMode == RedirectMode::Overwrite)
-            SData::redirectTarget->value.clear();
+        if (param.redirectMode == RedirectMode::Overwrite) {
+            SData::redirectTarget->_value.clear();
+        }
     } else {
         SData::redirecting = false;
         SData::redirectTarget = nullptr;
